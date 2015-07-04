@@ -11,7 +11,7 @@ class StreamSender : public QObject
 public:
     explicit StreamSender(QObject *parent = 0);
     void HelloUDP();
-   	void sendStream(Stream s);
+   	void sendStream(Stream* s);
 signals:
     
 public slots:

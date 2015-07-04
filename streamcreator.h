@@ -5,6 +5,7 @@
 #include <chrono>
 #include "stream.h"
 #include "sender.h"
+#include <QThread>
 #define BITS 8
 class StreamCreator{
 	private:
@@ -47,14 +48,29 @@ class StreamCreator{
 
 	void play(){
 		 /* decode and play */
-   
+   		 Stream *s;
 		 while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
-        		ao_play(dev, buffer, done);
-			Stream s(channels, encoding, rate, buffer, buffer_size);
+        //		ao_play(dev, buffer, done);
+			s = new Stream(channels, encoding, rate, buffer,(buffer_size));
+		
 			sender.sendStream(s);
+		//	play(s);
+			QThread::msleep(100);
+			delete s;
 		}
 	}
-	~Player(){
+	void play(Stream *s){
+		 /* decode and play */
+   			format.bits = mpg123_encsize(s->getEncoding()) * BITS;
+			format.rate = s->getRate();
+			format.channels = s->getChannels();
+			format.byte_format = AO_FMT_NATIVE;
+			format.matrix = 0;
+			dev = ao_open_live(driver, &format, NULL);
+        	ao_play(dev, s->getBuffer(), done);
+		
+	}
+	~StreamCreator(){
 			/* clean up */
 			free(buffer);
 			ao_close(dev);

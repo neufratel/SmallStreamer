@@ -12,7 +12,7 @@ StreamSender::StreamSender(QObject *parent) :
     // to bind to an address and port using bind()
     // bool QAbstractSocket::bind(const QHostAddress & address, 
     //     quint16 port = 0, BindMode mode = DefaultForPlatform)
-    server_ip = QHostAddress("192.168.0.17");
+    server_ip =QHostAddress::LocalHost;
     socket->bind(server_ip, 1234);
     
  //   connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
@@ -31,15 +31,19 @@ void StreamSender::HelloUDP()
     socket->writeDatagram(Data, server_ip, 1234);
 }
 
-void StreamSender::sendStream(Stream s){
+void StreamSender::sendStream(Stream* s){
 	QByteArray Data;
-    Data.append(s.getStreamDatagram().c_str());
-    qDebug()<<"Sedning data..";
+   // Data.append((char*)(s->getStreamDatagram()), s->getSize());
+	for(int i=0; i<65700; i++)
+	Data.append("D");
+	//QByteArray Data((char*)(s->getStreamDatagram()), s->getSize());
+    qDebug()<<"Sedning data.."<<Data.size();
+	//qDebug()<<Data;
     // Sends the datagram datagram 
     // to the host address and at port.
     // qint64 QUdpSocket::writeDatagram(const QByteArray & datagram, 
     //                      const QHostAddress & host, quint16 port)
-    socket->writeDatagram(Data, server_ip, 1234);
+    socket->writeDatagram(Data, QHostAddress::LocalHost, 1234);
 
 }
 
@@ -63,5 +67,5 @@ void StreamSender::readyRead()
     
     qDebug() << "Message from: " << sender.toString(); 
     qDebug() << "Message port: " << senderPort;
-    qDebug() << "Message: " << buffer;
+   // qDebug() << "Message: " << buffer;
 }
