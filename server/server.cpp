@@ -15,84 +15,112 @@
 #include "str_queue.h"
 #include "player.h"
 #include "stream.h"
+#include "logger.h"
 #include <thread>
 #include <chrono>
 
 typedef std::chrono::duration<int,std::milli> milisec;
 using boost::asio::ip::tcp;
 
-std::string make_daytime_string()
-{
- std::string ret("z");
-	for(int i=0; i<70000; i++) ret+="a"; ret+="x";
- return ret;
-}
-
 
 int main(int ar, char* arg[] )
 {
   try
   {
+	Logger::getInstance().msg(std::string("Program started"));
 	StreamQueue *que = new StreamQueue;
 	Player player(que);
 	player.start();
 //	player.openFile(arg);	
-    boost::asio::io_service io_service;
 
-    tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 5555));
-	std::cout<<"for"<<std::endl;
-      tcp::socket socket(io_service);
- 	acceptor.accept(socket);     
-	//
+	bool connection_is_open=false;
+	int waiting=0;;
+	while(true){
+		boost::asio::io_service io_service;
 
-    while(true)
-    {
+    		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 5555));
+		std::cout<<"new"<<std::endl;
+    		tcp::socket socket(io_service);
+		bool connection_is_open=false;
+		int waiting=0;;
 
- 	int k=socket.available();
-	if(k<20) std::this_thread::sleep_for(milisec(1));
-	
-	
-	unsigned char* var= new unsigned char[20];
-	   
-	boost::system::error_code ignored_error;
-	size_t len=boost::asio::read(socket,boost::asio::buffer(var, 20), ignored_error);
-	Stream frame(var);
-	k=socket.available();
-	if(k<frame.buffer_size) std::this_thread::sleep_for(milisec(1));
-	if(k==0)continue;
-	unsigned char *data = new unsigned char[frame.buffer_size];
-	len=boost::asio::read(socket,boost::asio::buffer(data, frame.buffer_size), ignored_error);
-	frame.setData(data);
-	frame.print();
-		que->push(frame);
-	std::cout<<k<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
-       	//boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
-//boost::asio::write(socket, boost::asio::buffer(message), ignored_error);
-    }	
-	
-	//std::string sample;
-	/*unsigned char sam[73728];
-	int iter;
-	while(que->size()>0){
-	int c=0;
-		std::cout<<iter<<" "<<que->front().length<<"  "<<que->size()<<std::endl;
-	while(c<73728){
-		if(iter>=que->front().length){
-			que->pop();
-			iter=0;
-			continue;
-		}
-		sam[c]=que->front().buf[iter];
+		boost::system::error_code ec;
+		acceptor.listen(boost::asio::socket_base::max_connections, ec);
+		Logger::getInstance().msg(std::string("Waiting for new connection..."));
+		acceptor.accept(socket);     
+		Logger::getInstance().msg(std::string("Connected"));
 		
-			c++;
-			++iter;
-	}*/
-    	//player.play(sam);
+
+		connection_is_open=true;
+		waiting=0;
+		while(connection_is_open)
+		{
+
+			bool message=true;
+			while(socket.available()<Stream::header&&waiting<2000){
+				if(!acceptor.is_open()){
+					std::cout<<"Stream broke..."<<std::endl;
+				}
+				if(message==true){
+					std::cout<<"Waiting for head..."<<std::endl;
+					message=false;
+				}
+				++waiting;
+				std::this_thread::sleep_for(milisec(1));
+			}
+			message=true;
+			if(waiting>=2000){
+				connection_is_open=false;
+				std::cout<<"Connection is lost"<<std::endl;
+				Logger::getInstance().msg(std::string("Connection probably lost."));
+				break;
+			}else{
+				waiting=0;
+			}
 	
+	
+			unsigned char* var= new unsigned char[Stream::header];
+			   
+			boost::system::error_code ignored_error;
+			size_t len=boost::asio::read(socket,boost::asio::buffer(var, Stream::header), ignored_error);
+			Stream frame(var);
+			std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
+					<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;
+
+			while(socket.available()<frame.buffer_size&&waiting<2000){
+				if(!acceptor.is_open()){
+					std::cout<<"Stream broke..."<<std::endl;
+				}
+				if(message==true){
+					std::cout<<"Waiting for data..."<<std::endl;
+					message=false;
+				}
+				std::this_thread::sleep_for(milisec(1));
+			}
+			message=true;
+			if(waiting>=2000){
+				connection_is_open=false;
+				std::cout<<"Connection is lost"<<std::endl;
+				Logger::getInstance().msg(std::string("Connection probably lost."));
+				break;
+			}else{
+				waiting=0;
+			}
+
+			unsigned char *data = new unsigned char[frame.buffer_size];
+			len=boost::asio::read(socket,boost::asio::buffer(data, frame.buffer_size), ignored_error);
+			frame.setData(data);
+			frame.print();
+				que->push(frame);
+			std::cout<<socket.available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
+		}
+	}	
   }
   catch (std::exception& e)
   {
     std::cerr << e.what() << std::endl;
+	std::string exp(e.what());
+    Logger::getInstance().msg(std::string("Exeption occur :")+exp);
   }
 
   return 0;
