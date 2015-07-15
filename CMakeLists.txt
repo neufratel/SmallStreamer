@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 2.8)
+project(asioudp)
+
+set(CMAKE_BUILD_TYPE Release)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+ set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+# build subdirs
+include_directories(${CMAKE_SOURCE_DIR}/utils)
+add_subdirectory(client)
+add_subdirectory(server)
+add_subdirectory(utils)
+include_directories(${CMAKE_SOURCE_DIR})
