@@ -31,11 +31,12 @@ while(que->size()>0)
     {
 	boost::system::error_code error;
 	boost::asio::write(socket, boost::asio::buffer(que->front().getFrame(), que->front().getFrameSize()), error);
-	player.play(que->front());
+	//player.play(que->front());
 	que->pop();
 	
 	std::cout<<"sending..."<<" error: "<<error<<std::endl;
     }
+	socket.close();
   }
   catch (std::exception& e)
   {
