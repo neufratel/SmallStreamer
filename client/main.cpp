@@ -18,11 +18,11 @@ int main(int arg, char* argv[]){
 	    StreamQueue *que = new StreamQueue;
 	    Player player(que);
 	    player.openFile(argv);
-	//    player.wrap();
+	    player.wrap();
 	    Client client(que);
 		std::cout<<"Start"<<std::endl;
-	//	client.start();
-	
+		client.start();
+		client.joinMainThread();
 	//	socket.close();
 	  }
 	  catch (std::exception& e)

@@ -16,11 +16,10 @@ class Client: public Runnable{
 		tcp::resolver::iterator endpoint_iterator;
 		tcp::socket socket;
 		StreamQueue  *queue;
-		Player player;
 	
 	public:
 		Client(StreamQueue *que
-):io_service(), resolver(io_service), socket(io_service), player(que){
+):io_service(), resolver(io_service), socket(io_service){
 			queue=que;
 			//resolver(io_service);
 			//socket(io_service);
@@ -51,7 +50,7 @@ class Client: public Runnable{
     			{
 				boost::system::error_code error;
 				boost::asio::write(socket, boost::asio::buffer(queue->front().getFrame(), queue->front().getFrameSize()), error);
-				player.play(queue->front());
+				//player.play(queue->front());
 				queue->pop();
 	
 				std::cout<<"sending..."<<" error: "<<error<<std::endl;
@@ -61,8 +60,8 @@ class Client: public Runnable{
 		void run(){
 			std::cout<<"Client run"<<std::endl;
 			while(true){
-	//			connectToServer("192.168.0.4","5555");
-//				sendStream();
+				connectToServer("localhost","5555");
+				sendStream();
 			}			
 		}
 };
