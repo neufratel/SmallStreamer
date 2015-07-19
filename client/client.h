@@ -10,6 +10,8 @@ using boost::asio::ip::tcp;
 
 class Client: public Runnable{
 	private:
+		bool play;
+		Player player;
 		boost::asio::io_service io_service;
 		tcp::resolver resolver;
 	//	tcp::resolver::query* query;
@@ -50,7 +52,7 @@ class Client: public Runnable{
     			{
 				boost::system::error_code error;
 				boost::asio::write(socket, boost::asio::buffer(queue->front().getFrame(), queue->front().getFrameSize()), error);
-				//player.play(queue->front());
+				player.play(queue->front());
 				queue->pop();
 	
 				std::cout<<"sending..."<<" error: "<<error<<std::endl;

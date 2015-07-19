@@ -31,6 +31,14 @@ class Player: public Runnable{
     	int channels, encoding;
     	long rate;
 	StreamQueue* que;
+	
+	void play(unsigned char * buff , size_t buff_size){
+		 /* decode and play */
+   		
+        		ao_play(dev, buff, buff_size);
+//			Stream s(channels, encoding, rate, buffer, buffer_size);
+//			sender.sendStream(s);
+	}
 	public:
 		Player(StreamQueue* q){
 			/* initializations */
@@ -49,6 +57,22 @@ class Player: public Runnable{
 			que=q;
 			Logger::getInstance().msg(std::string("Player: module created "));
 		}
+		Player(){
+			/* initializations */
+			ao_initialize();
+			driver = ao_default_driver_id();
+			mpg123_init();
+			mh = mpg123_new(NULL, &err);
+			buffer_size = mpg123_outblock(mh);
+			buffer = (unsigned char*) malloc(buffer_size * sizeof(unsigned char));
+			encod_c=new char[4];
+			chane_c=new char[4];
+			rate_c=new char[8];
+			bufsi_c=new char[4];
+			sample= new unsigned char[128000];
+			dev_is_open=false;
+			Logger::getInstance().msg(std::string("Player: module created "));
+		}
 	void openFile(char *argv[]){
 			/* open the file and get the decoding format */
 			mpg123_open(mh, argv[2]);
@@ -61,13 +85,6 @@ class Player: public Runnable{
 			format.matrix = 0;
 			dev = ao_open_live(driver, &format, NULL);
 			Logger::getInstance().msg(std::string("Player: opening file: ")+std::string(argv[2]));
-	}
-	void play(unsigned char * buff , size_t buff_size){
-		 /* decode and play */
-   		
-        		ao_play(dev, buff, buff_size);
-//			Stream s(channels, encoding, rate, buffer, buffer_size);
-//			sender.sendStream(s);
 	}
 	void play(Stream s){
 		if(rate!=s.rate || encoding!= s.encoding || channels!=s.channels){
@@ -154,8 +171,6 @@ class Player: public Runnable{
 			bufsi_c[0]=(buffer_size>>24) & 0xFF;
 			Stream stream(channels, encoding, rate, buffer_size, buffer);
 			que->push(stream);
-			//queue->push(tmp+std::string(bufsi_c, sizeof(char)*4)+std::string(buffer, buffer_size));
-        	//	ao_play(dev, buffer, done);
 		}
 		Logger::getInstance().msg(std::string("Player: finished wrapping"));
 
