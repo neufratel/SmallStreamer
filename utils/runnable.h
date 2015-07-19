@@ -19,16 +19,17 @@ public:
         }
     }
     void start_sec(){
-	if(run_sec_==false){
-		run_sec_=true;
-		t_run_sec = std::thread(&Runnable::run_sec, this);
-		std::cout<<"Object is starting  running secondary thread"<<std::endl;
+		if(run_sec_==false){
+			run_sec_=true;
+			t_run_sec = std::thread(&Runnable::run_sec, this);
+			std::cout<<"Object is starting  running secondary thread"<<std::endl;
 	
-	}else{
-		std::cout<<"Object already is running secondary thread"<<std::endl;
-	}
+		}else{
+			std::cout<<"Object already is running secondary thread"<<std::endl;
+		}
     }
-	
+	void joinMainThread(){t_run.join();}
+	void joinSecThread(){t_run_sec.join();}
     void stop(){run_=false; };
     void stop_sec(){run_sec_=false;};
     explicit Runnable():run_(false), run_sec_(false){ run_=false;	}
