@@ -1,8 +1,11 @@
+#ifndef PLAYER_H
+#define PLAYER_H
 #include <ao/ao.h>
 #include <mpg123.h>
 #include <iostream>
 #include "str_queue.h"
 #include "stream.h"
+#include "logger.h"
 #include "runnable.h"
 #include  <algorithm>  
 const short BITS= 8;
@@ -44,6 +47,7 @@ class Player: public Runnable{
 			sample= new unsigned char[128000];
 			dev_is_open=false;
 			que=q;
+			Logger::getInstance().msg(std::string("Player: module created "));
 		}
 	void openFile(char *argv[]){
 			/* open the file and get the decoding format */
@@ -56,6 +60,7 @@ class Player: public Runnable{
 			format.byte_format = AO_FMT_NATIVE;
 			format.matrix = 0;
 			dev = ao_open_live(driver, &format, NULL);
+			Logger::getInstance().msg(std::string("Player: opening file: ")+std::string(argv[2]));
 	}
 	void play(unsigned char * buff , size_t buff_size){
 		 /* decode and play */
@@ -83,6 +88,7 @@ class Player: public Runnable{
         		play(s.buf,s.buffer_size);
 	}
 	void run(){
+		Logger::getInstance().msg(std::string("Player: running player "));
 		while(run_)
 		if(que->size()>0){
 			if(rate!=que->front().rate || encoding!= que->front().encoding || channels!=que->front().channels){
@@ -139,6 +145,7 @@ class Player: public Runnable{
 		}
 	}*/
 	void wrap(){
+		Logger::getInstance().msg(std::string("Player: wraping file"));
 		while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
 			std::cout<<buffer_size<<" "<<done<<std::endl;
 			bufsi_c[3]=(buffer_size>>0 ) & 0xFF;
@@ -150,6 +157,7 @@ class Player: public Runnable{
 			//queue->push(tmp+std::string(bufsi_c, sizeof(char)*4)+std::string(buffer, buffer_size));
         	//	ao_play(dev, buffer, done);
 		}
+		Logger::getInstance().msg(std::string("Player: finished wrapping"));
 
 
 	}
@@ -172,7 +180,7 @@ class Player: public Runnable{
 };
 
  	
-
+#endif
   
 
    

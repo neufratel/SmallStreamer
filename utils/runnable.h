@@ -13,6 +13,7 @@ public:
         if(run_==false){
             run_=true;
             t_run = std::thread(&Runnable::run, this);
+	     std::cout<<"Object is starting runing main thread"<<std::endl;
         }else{
             std::cout<<"Object already is runing main thread"<<std::endl;
         }
@@ -20,9 +21,11 @@ public:
     void start_sec(){
 	if(run_sec_==false){
 		run_sec_=true;
-		t_run_sec = std::thread(&Runnable::run_sec, this);		
+		t_run_sec = std::thread(&Runnable::run_sec, this);
+		std::cout<<"Object is starting  running secondary thread"<<std::endl;
+	
 	}else{
-		std::cout<<"Object already is ruing secondary thread"<<std::endl;
+		std::cout<<"Object already is running secondary thread"<<std::endl;
 	}
     }
 	

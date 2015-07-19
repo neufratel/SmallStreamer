@@ -1,68 +1,68 @@
 #include <iostream>
+
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include "str_queue.h"
 #include "player.h"
 #include "logger.h"
+#include "runnable.h"
 using boost::asio::ip::tcp;
-using Logger;
 
-class Client{
+class Client: public Runnable{
 	private:
-		boost::asio:io_service io_service;
+		boost::asio::io_service io_service;
 		tcp::resolver resolver;
-		tcp::resolver::query* query;
+	//	tcp::resolver::query* query;
 		tcp::resolver::iterator endpoint_iterator;
-		tcp::socket *socket;
+		tcp::socket socket;
+		StreamQueue  *queue;
+		Player player;
 	
 	public:
-		Client(char * argv[]): io_service(){
-			resolver(io_service);
-			endpoint_iterator=resolver.resolve(query);
-			socket(io_service);
-			query=nullptr;
-			socket=nullptr;
-			getInstance().msg(std::string("Client: module created"));
+		Client(StreamQueue *que
+):io_service(), resolver(io_service), socket(io_service), player(que){
+			queue=que;
+			//resolver(io_service);
+			//socket(io_service);
+			Logger::getInstance().msg(std::string("Client: module created"));
 		}
 		void connectToServer( std::string server, std::string port){
-			if(query!=nullptr){ delete query;}
-			query = new tcp::resolver::query(server, port);
-			endpoint_iterator = resolver.resolve(*query);
+				std::cout<<"break"<<std::endl;
 
-			if(socket!=nullptr){delete socket;}
-			socket=new tcp::socket(io_service());
+			tcp::resolver::query query(server, port);
+			endpoint_iterator = resolver.resolve(query);
+			std::cout<<"break"<<std::endl;
 			
 			try{
-				getInstance().msg(std::string("Client: trying to connect to: ")+server+":"+port);
-				boost::asio::connect(*socket, endpoint_iterator);
-				getInstance().msg(std::string("Client: connected to: ")+server+":"+port);
+				Logger::getInstance().msg(std::string("Client: trying to connect to: ")+server+":"+port);
+				boost::asio::connect(socket, endpoint_iterator);
+				Logger::getInstance().msg(std::string("Client: connected to: ")+server+":"+port);
 			
 			}catch (std::exception& e){
 				std::cerr << e.what() << std::endl;
-				getInstance().msg(std::string("Client: connection failed: ")+e.what());
+				Logger::getInstance().msg(std::string("Client: connection failed: ")+e.what());
 			}
 
 		
 		}
-
-
-/* 
-    
-while(que->size()>0)
-    {
-	boost::system::error_code error;
-	boost::asio::write(socket, boost::asio::buffer(que->front().getFrame(), que->front().getFrameSize()), error);
-	//player.play(que->front());
-	que->pop();
+		void sendStream(){
+			std::cout<<queue->size()<<std::endl;
+			while(queue->size()>0)
+    			{
+				boost::system::error_code error;
+				boost::asio::write(socket, boost::asio::buffer(queue->front().getFrame(), queue->front().getFrameSize()), error);
+				player.play(queue->front());
+				queue->pop();
 	
-	std::cout<<"sending..."<<" error: "<<error<<std::endl;
-    }
-	socket.close();
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
-
-  return 0;*/
-}
+				std::cout<<"sending..."<<" error: "<<error<<std::endl;
+			}
+			socket.close();
+		}
+		void run(){
+			std::cout<<"Client run"<<std::endl;
+			while(true){
+	//			connectToServer("192.168.0.4","5555");
+//				sendStream();
+			}			
+		}
+};
