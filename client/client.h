@@ -14,7 +14,6 @@ class Client: public Runnable{
 		Player player;
 		boost::asio::io_service io_service;
 		tcp::resolver resolver;
-	//	tcp::resolver::query* query;
 		tcp::resolver::iterator endpoint_iterator;
 		tcp::socket socket;
 		StreamQueue  *queue;
@@ -23,8 +22,6 @@ class Client: public Runnable{
 		Client(StreamQueue *que
 ):io_service(), resolver(io_service), socket(io_service){
 			queue=que;
-			//resolver(io_service);
-			//socket(io_service);
 			Logger::getInstance().msg(std::string("Client: module created"));
 		}
 		void connectToServer( std::string server, std::string port){
@@ -48,20 +45,23 @@ class Client: public Runnable{
 		}
 		void sendStream(){
 			std::cout<<queue->size()<<std::endl;
+			boost::system::error_code error;
+
 			while(queue->size()>0)
     			{
 				boost::system::error_code error;
+				std::cout<<"beffore"<<std::endl;
 				boost::asio::write(socket, boost::asio::buffer(queue->front().getFrame(), queue->front().getFrameSize()), error);
 				player.play(queue->front());
 				queue->pop();
 	
-				std::cout<<"sending..."<<" error: "<<error<<std::endl;
+				std::cout<<queue->size()<<"\t: sending..."<<" error: "<<error<<std::endl;
 			}
 			socket.close();
 		}
 		void run(){
 			std::cout<<"Client run"<<std::endl;
-			while(true){
+			while(run_){
 				connectToServer("localhost","5555");
 				sendStream();
 			}			

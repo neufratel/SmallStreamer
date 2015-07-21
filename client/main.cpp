@@ -12,18 +12,19 @@ int main(int arg, char* argv[]){
 	  {
 	    if (arg != 3)
 	    {
-	      std::cerr << "Usage: client <host> <mp3>" << std::endl;
+	      std::cerr << "Usage: client <server> <file mp3>" << std::endl;
 	      return 1;
 	    }
+		std::string server(argv[1]);
+		std::string file(argv[2]);
 	    StreamQueue *que = new StreamQueue;
 	    Player player(que);
-	    player.openFile(argv);
+		player.openFile(file);
 	    player.wrap();
 	    Client client(que);
 		std::cout<<"Start"<<std::endl;
 		client.start();
 		client.joinMainThread();
-	//	socket.close();
 	  }
 	  catch (std::exception& e)
 	  {
