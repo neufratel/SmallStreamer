@@ -26,9 +26,9 @@ int main(int ar, char* arg[] )
 //	player.openFile(arg);	
 
 	Server server(que);
-		server.waitConnection();
-		server.recieveStream();
-
+	//	server.waitConnection();
+	//	server.recieveStream();
+	server.start();
 	player.joinMainThread();
 	//server.connect	
   }

@@ -15,7 +15,7 @@ using boost::asio::ip::tcp;
 
 class Server: public Runnable{
 	boost::asio::io_service io_service;
-	tcp::acceptor acceptor;
+	tcp::acceptor* acceptor;
 	tcp::socket socket;
 	boost::system::error_code ec;
 	StreamQueue* queue;
@@ -23,16 +23,29 @@ class Server: public Runnable{
 		
 	public:	
 		
-	Server(StreamQueue* que): io_service(), socket(io_service), acceptor(io_service, tcp::endpoint(tcp::v4(), 5555)) {
+	Server(StreamQueue* que): io_service(), socket(io_service){
 		queue=que;
-		timeout_time=20000;
+		acceptor=nullptr;
+		timeout_time=2000;
+	}
+	~Server(){
+		if(acceptor!=nullptr){
+			delete acceptor;
+		}	
 	}
 	
 	void waitConnection(){
-		acceptor.listen(boost::asio::socket_base::max_connections, ec);
+		if(acceptor!=nullptr){
+			std::cout<<"Clining..."<<std::endl;
+			delete acceptor;
+		}
+		std::cout<<"Waiting..."<<std::endl;
+		acceptor=new tcp::acceptor(io_service, tcp::endpoint(tcp::v4(), 5555));
+	
+		acceptor->listen(boost::asio::socket_base::max_connections, ec);
 		std::cout<<"Server is waiting for new connection";
 		Logger::getInstance().msg(std::string("Waiting for new connection..."));
-		acceptor.accept(socket);     
+		acceptor->accept(socket);     
 		Logger::getInstance().msg(std::string("Connected"));
 	}
 	void recieveStream(){
@@ -43,7 +56,7 @@ class Server: public Runnable{
 
 			message=true;
 			while(socket.available()<Stream::header&&waiting<timeout_time){
-				if(!acceptor.is_open()){
+				if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
 				if(message==true){
@@ -56,7 +69,7 @@ class Server: public Runnable{
 			message=true;
 			if(waiting>=timeout_time){
 				std::cout<<"Connection is lost"<<std::endl;
-				Logger::getInstance().msg(std::string("Connection probably lost."));
+				Logger::getInstance().msg(std::string("Connection probably lost before geting a message head."));
 				return;
 			}else{
 				waiting=0;
@@ -72,7 +85,7 @@ class Server: public Runnable{
 					<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;
 
 			while(socket.available()<frame.buffer_size&&waiting<timeout_time){
-				if(!acceptor.is_open()){
+				if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
 				if(message==true){
