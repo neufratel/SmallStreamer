@@ -1,13 +1,3 @@
-//
-// server.cpp
-// ~~~~~~~~~~
-//
-// Copyright (c) 2003-2013 Christopher M. Kohlhoff (chris at ntkohlhoff dot com)
-//
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-//
-
 #include <ctime>
 #include <iostream>
 #include <string>
@@ -18,46 +8,41 @@
 #include "logger.h"
 #include <thread>
 #include <chrono>
+#include "runnable.h"
 
 typedef std::chrono::duration<int,std::milli> milisec;
 using boost::asio::ip::tcp;
 
-
-int main(int ar, char* arg[] )
-{
-  try
-  {
-	Logger::getInstance().msg(std::string("Program started"));
-	StreamQueue *que = new StreamQueue;
-	Player player(que);
-	player.start();
-//	player.openFile(arg);	
-
-	bool connection_is_open=false;
-	int waiting=0;;
-	while(true){
-		boost::asio::io_service io_service;
-
-    		tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 5555));
-		std::cout<<"new"<<std::endl;
-    		tcp::socket socket(io_service);
-		bool connection_is_open=false;
-		int waiting=0;;
-
-		boost::system::error_code ec;
+class Server: public Runnable{
+	boost::asio::io_service io_service;
+	tcp::acceptor acceptor;
+	tcp::socket socket;
+	boost::system::error_code ec;
+	StreamQueue* queue;
+	int timeout_time;
+		
+	public:	
+		
+	Server(StreamQueue* que): io_service(), socket(io_service), acceptor(io_service, tcp::endpoint(tcp::v4(), 5555)) {
+		queue=que;
+		timeout_time=20000;
+	}
+	
+	void waitConnection(){
 		acceptor.listen(boost::asio::socket_base::max_connections, ec);
+		std::cout<<"Server is waiting for new connection";
 		Logger::getInstance().msg(std::string("Waiting for new connection..."));
 		acceptor.accept(socket);     
 		Logger::getInstance().msg(std::string("Connected"));
-		
-
-		connection_is_open=true;
-		waiting=0;
-		while(connection_is_open)
+	}
+	void recieveStream(){
+		int waiting=0;
+		bool message;
+		while(true)
 		{
 
-			bool message=true;
-			while(socket.available()<Stream::header&&waiting<2000){
+			message=true;
+			while(socket.available()<Stream::header&&waiting<timeout_time){
 				if(!acceptor.is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
@@ -66,14 +51,13 @@ int main(int ar, char* arg[] )
 					message=false;
 				}
 				++waiting;
-				std::this_thread::sleep_for(milisec(1));
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			}
 			message=true;
-			if(waiting>=2000){
-				connection_is_open=false;
+			if(waiting>=timeout_time){
 				std::cout<<"Connection is lost"<<std::endl;
 				Logger::getInstance().msg(std::string("Connection probably lost."));
-				break;
+				return;
 			}else{
 				waiting=0;
 			}
@@ -87,7 +71,7 @@ int main(int ar, char* arg[] )
 			std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
 					<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;
 
-			while(socket.available()<frame.buffer_size&&waiting<2000){
+			while(socket.available()<frame.buffer_size&&waiting<timeout_time){
 				if(!acceptor.is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
@@ -95,14 +79,13 @@ int main(int ar, char* arg[] )
 					std::cout<<"Waiting for data..."<<std::endl;
 					message=false;
 				}
-				std::this_thread::sleep_for(milisec(1));
+				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			}
 			message=true;
-			if(waiting>=2000){
-				connection_is_open=false;
+			if(waiting>=timeout_time){
 				std::cout<<"Connection is lost"<<std::endl;
 				Logger::getInstance().msg(std::string("Connection probably lost."));
-				break;
+				return;
 			}else{
 				waiting=0;
 			}
@@ -111,17 +94,15 @@ int main(int ar, char* arg[] )
 			len=boost::asio::read(socket,boost::asio::buffer(data, frame.buffer_size), ignored_error);
 			frame.setData(data);
 			frame.print();
-				que->push(frame);
+				queue->push(frame);
 			std::cout<<socket.available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
 		}
-	}	
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-	std::string exp(e.what());
-    Logger::getInstance().msg(std::string("Exeption occur :")+exp);
-  }
+	}
+	void run(){
+			while(run_){
+				waitConnection();
+				recieveStream();
+			}
+	}
+};
 
-  return 0;
-}
