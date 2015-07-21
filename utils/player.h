@@ -1,5 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
+#include <string>
 #include <ao/ao.h>
 #include <mpg123.h>
 #include <iostream>
@@ -73,6 +74,19 @@ class Player: public Runnable{
 			dev_is_open=false;
 			Logger::getInstance().msg(std::string("Player: module created "));
 		}
+	void openFile(std::string file){
+			/* open the file and get the decoding format */
+			mpg123_open(mh, file.c_str());
+			mpg123_getformat(mh, &rate, &channels, &encoding);
+			/* set the output format and open the output device */
+			format.bits = mpg123_encsize(encoding) * BITS;
+			format.rate = rate;
+			format.channels = channels;
+			format.byte_format = AO_FMT_NATIVE;
+			format.matrix = 0;
+			dev = ao_open_live(driver, &format, NULL);
+			Logger::getInstance().msg(std::string("Player: opening file: ")+file);
+	}
 	void openFile(char *argv[]){
 			/* open the file and get the decoding format */
 			mpg123_open(mh, argv[2]);
