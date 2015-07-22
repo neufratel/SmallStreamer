@@ -20,7 +20,7 @@ class Client: public Runnable{
 		
 		/*variables used for menaging logging*/
 		bool log_conn_failed;
-		
+		int connection_timeout;
 	
 	public:
 		Client(StreamQueue *que
@@ -28,8 +28,10 @@ class Client: public Runnable{
 			queue=que;
 			log_conn_failed=true;
 			Logger::getInstance().msg(std::string("Client: module created"));
+			connection_timeout=0;
 		}
-		void connectToServer( std::string server, std::string port){
+		
+		bool connectToServer( std::string server, std::string port){
 
 			tcp::resolver::query query(server, port);
 			endpoint_iterator = resolver.resolve(query);
@@ -38,6 +40,8 @@ class Client: public Runnable{
 				boost::asio::connect(socket, endpoint_iterator);
 				log_conn_failed=true;
 				Logger::getInstance().msg(std::string("Client: connected to: ")+server+":"+port);
+				connection_timeout=0;
+				return true;
 			
 			}catch (std::exception& e){
 				std::cerr << e.what() << std::endl;
@@ -45,7 +49,14 @@ class Client: public Runnable{
 					Logger::getInstance().msg(std::string("Client: connection failed: ")+e.what());
 					log_conn_failed=false;
 				}
-				connectToServer(server, port);
+				if(connection_timeout<100){
+					connection_timeout++;
+					std::this_thread::sleep_for(std::chrono::microseconds(100000));
+					connectToServer(server, port);
+				}else{
+					this->stop();
+					return false;
+				}
 			}
 
 		
@@ -72,9 +83,13 @@ class Client: public Runnable{
 		}
 		void run(){
 			std::cout<<"Client run"<<std::endl;
+			bool connected=false;
 			while(run_){
-				connectToServer("localhost","5555");
-				sendStream();
+				connected=connectToServer("localhost","5555");
+				std::cout<<connected<<std::endl;
+				if(connected){
+					sendStream();
+				}
 			}			
 		}
 };

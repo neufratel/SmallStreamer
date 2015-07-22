@@ -16,36 +16,44 @@ using boost::asio::ip::tcp;
 class Server: public Runnable{
 	boost::asio::io_service io_service;
 	tcp::acceptor* acceptor;
-	tcp::socket socket;
+	tcp::socket* socket;
 	boost::system::error_code ec;
 	StreamQueue* queue;
 	int timeout_time;
 		
 	public:	
 		
-	Server(StreamQueue* que): io_service(), socket(io_service){
+	Server(StreamQueue* que): io_service(){
 		queue=que;
 		acceptor=nullptr;
-		timeout_time=2000;
+		timeout_time=20000;
+		socket=nullptr;
 	}
 	~Server(){
 		if(acceptor!=nullptr){
 			delete acceptor;
+		}
+		if(socket!=nullptr){
+			delete socket;
 		}	
 	}
 	
 	void waitConnection(){
 		if(acceptor!=nullptr){
-			std::cout<<"Clining..."<<std::endl;
+			std::cout<<"Clining acceptor..."<<std::endl;
 			delete acceptor;
+		}
+		if(socket!=nullptr){
+			delete socket;
+			std::cout<<"Clining socket..."<<std::endl;
 		}
 		std::cout<<"Waiting..."<<std::endl;
 		acceptor=new tcp::acceptor(io_service, tcp::endpoint(tcp::v4(), 5555));
-	
+		socket = new tcp::socket(io_service);
 		acceptor->listen(boost::asio::socket_base::max_connections, ec);
 		std::cout<<"Server is waiting for new connection";
 		Logger::getInstance().msg(std::string("Waiting for new connection..."));
-		acceptor->accept(socket);     
+		acceptor->accept(*socket);     
 		Logger::getInstance().msg(std::string("Connected"));
 	}
 	void recieveStream(){
@@ -55,7 +63,7 @@ class Server: public Runnable{
 		{
 
 			message=true;
-			while(socket.available()<Stream::header&&waiting<timeout_time){
+			while(socket->available()<Stream::header&&waiting<timeout_time){
 				if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
@@ -79,12 +87,12 @@ class Server: public Runnable{
 			unsigned char* var= new unsigned char[Stream::header];
 			   
 			boost::system::error_code ignored_error;
-			size_t len=boost::asio::read(socket,boost::asio::buffer(var, Stream::header), ignored_error);
+			size_t len=boost::asio::read(*socket,boost::asio::buffer(var, Stream::header), ignored_error);
 			Stream frame(var);
 			std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
 					<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;
 
-			while(socket.available()<frame.buffer_size&&waiting<timeout_time){
+			while(socket->available()<frame.buffer_size&&waiting<timeout_time){
 				if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
@@ -104,11 +112,11 @@ class Server: public Runnable{
 			}
 
 			unsigned char *data = new unsigned char[frame.buffer_size];
-			len=boost::asio::read(socket,boost::asio::buffer(data, frame.buffer_size), ignored_error);
+			len=boost::asio::read(*socket,boost::asio::buffer(data, frame.buffer_size), ignored_error);
 			frame.setData(data);
 			frame.print();
 				queue->push(frame);
-			std::cout<<socket.available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
+			std::cout<<socket->available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
 		}
 	}
 	void run(){
