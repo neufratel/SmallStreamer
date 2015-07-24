@@ -21,7 +21,7 @@ int main(int arg, char* argv[]){
 	    Player player(que);
 		player.openFile(file);
 	    player.wrap();
-	    Client client(que);
+	    Client client(que, true);
 		std::cout<<"Start"<<std::endl;
 		client.start();
 		client.joinMainThread();

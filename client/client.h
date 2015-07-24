@@ -20,11 +20,13 @@ class Client: public Runnable{
 		
 		/*variables used for menaging logging*/
 		bool log_conn_failed;
+		bool play_stream;
 		int connection_timeout;
 	
 	public:
-		Client(StreamQueue *que
-):io_service(), resolver(io_service), socket(io_service){
+		Client(StreamQueue *que, bool pl=false)
+			:io_service(), resolver(io_service), socket(io_service), play_stream(pl)
+		{
 			queue=que;
 			log_conn_failed=true;
 			Logger::getInstance().msg(std::string("Client: module created"));
@@ -62,7 +64,6 @@ class Client: public Runnable{
 		
 		}
 		void sendStream(){
-			std::cout<<queue->size()<<std::endl;
 			boost::system::error_code error;
 
 			while(queue->size()>0)
@@ -75,9 +76,10 @@ class Client: public Runnable{
 					 std::cout<<"Streaming stopt"<<std::endl;
 					 return;
 				}
-				player.play(queue->front());
+				if(play_stream){
+					player.play(queue->front());
+				}
 				queue->pop();
-				std::cout<<queue->size()<<"\t: sending..."<<" error: "<<error<<std::endl;
 			}
 			socket.close();
 		}
@@ -86,7 +88,6 @@ class Client: public Runnable{
 			bool connected=false;
 			while(run_){
 				connected=connectToServer("localhost","5555");
-				std::cout<<connected<<std::endl;
 				if(connected){
 					sendStream();
 				}
