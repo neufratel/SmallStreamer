@@ -23,7 +23,7 @@ int main(int ar, char* arg[] )
 	StreamQueue *que = new StreamQueue;
 	Player player(que);
 	player.start();
-//	player.openFile(arg);	
+	player.start_sec();
 
 	Server server(que);
 	//	server.waitConnection();

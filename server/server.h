@@ -89,8 +89,8 @@ class Server: public Runnable{
 			boost::system::error_code ignored_error;
 			size_t len=boost::asio::read(*socket,boost::asio::buffer(var, Stream::header), ignored_error);
 			Stream frame(var);
-			std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
-					<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;
+	//		std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
+	//				<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;
 
 			while(socket->available()<frame.buffer_size&&waiting<timeout_time){
 				if(!acceptor->is_open()){
@@ -114,9 +114,9 @@ class Server: public Runnable{
 			unsigned char *data = new unsigned char[frame.buffer_size];
 			len=boost::asio::read(*socket,boost::asio::buffer(data, frame.buffer_size), ignored_error);
 			frame.setData(data);
-			frame.print();
+	//		frame.print();
 				queue->push(frame);
-			std::cout<<socket->available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
+	//		std::cout<<socket->available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
 		}
 	}
 	void run(){
