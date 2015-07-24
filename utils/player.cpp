@@ -152,7 +152,7 @@
 		mpg123_info (mh, &frameinfo);
 		std::cout<<"frame bitrate "<<frameinfo.bitrate<<std::endl;
 		while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
-			Stream stream(100,channels, encoding, rate, buffer_size, buffer);
+			Stream stream(channels, encoding, rate, buffer_size, buffer);
 			queue->push(stream);
 		}
 		Logger::getInstance().msg(std::string("Player: finished wrapping"));
@@ -173,7 +173,7 @@
 		FILE *in;
 		char buff[512];
 		std::stringstream comand;
-		std::cout<<comand.str()<<std::endl;
+		//std::cout<<comand.str()<<std::endl;
 		comand<<"amixer -D pulse sset Master "<<vol<<"%";
 		if(!(in = popen(comand.str().c_str(), "r"))){
 			std::cout<<"cant volume";
