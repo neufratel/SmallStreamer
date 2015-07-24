@@ -67,10 +67,10 @@ class Server: public Runnable{
 				if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
-				if(message==true){
+	/*			if(message==true){
 					std::cout<<"Waiting for head..."<<std::endl;
 					message=false;
-				}
+				}*/
 				++waiting;
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			}
@@ -89,17 +89,17 @@ class Server: public Runnable{
 			boost::system::error_code ignored_error;
 			size_t len=boost::asio::read(*socket,boost::asio::buffer(var, Stream::header), ignored_error);
 			Stream frame(var);
-	//		std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
-	//				<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;
+	/*		std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
+					<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;*/
 
 			while(socket->available()<frame.buffer_size&&waiting<timeout_time){
 				if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
-				if(message==true){
+			/*	if(message==true){
 					std::cout<<"Waiting for data..."<<std::endl;
 					message=false;
-				}
+				}*/
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			}
 			message=true;
