@@ -14,6 +14,9 @@ class Client: public Runnable{
 		tcp::resolver::iterator endpoint_iterator;
 		tcp::socket socket;
 		PlayList* playlist;
+		
+		std::string server;
+		std::string port;
 		/*variables used for menaging logging*/
 		bool log_conn_failed;
 		bool play_stream;
@@ -25,7 +28,8 @@ class Client: public Runnable{
 	
 	public:
 		Client(PlayList *play, bool pl=false);
-		
+		void setServer(std::string s);
+		void setPort(std::string p);
 		
 		
 };

@@ -9,8 +9,7 @@ using boost::asio::ip::tcp;
 
 
 int main(int arg, char* argv[]){
-
-	
+    // ...
 		
 	/*if(arg<2)
 		return -1;
@@ -25,7 +24,13 @@ int main(int arg, char* argv[]){
 	try{
 		PlayList* playlist=new PlayList();
 		for(int i=2; i<arg; i++){
-			playlist->addFile(argv[i]);
+			try{
+				playlist->addFile(argv[i]);
+			}catch(std::string e)
+	 		{
+			std::cerr << e << std::endl;
+	  		}	
+
 		}
 	//	playlist.addFile(argv[2]);
 	/*	playlist.show();
@@ -63,7 +68,6 @@ int main(int arg, char* argv[]){
 	  {
 		std::cerr << e.what() << std::endl;
 	  }
-
   return 0;
 }
 

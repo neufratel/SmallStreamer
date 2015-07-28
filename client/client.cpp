@@ -12,7 +12,8 @@ using boost::asio::ip::tcp;
 
 
 	Client::Client(PlayList *play, bool pl=false)
-		:io_service(), resolver(io_service), socket(io_service), play_stream(pl)
+		:io_service(), resolver(io_service), socket(io_service), play_stream(pl),
+			server("localhost"), port("5555")
 	{
 		playlist=play;
 		log_conn_failed=true;
@@ -47,7 +48,7 @@ using boost::asio::ip::tcp;
 		while(playlist->size()>0)
 			{
 			
-			Stream::setSampleClassVolume(10);
+			Stream::setSampleClassVolume(50);
 			boost::system::error_code error;
 			Stream* stream=nullptr;
 			 	while(stream==nullptr){
@@ -57,10 +58,9 @@ using boost::asio::ip::tcp;
 			if(error!=0){
 				 Logger::getInstance().msg(std::string("Client: writing error: ")
 						+ error.category().name()+ std::to_string(error.value()) );
-				 std::cout<<"Streaming stopt"<<std::endl;
 				 return;
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(stream->getStreamDuration()));
+			std::this_thread::sleep_for(std::chrono::milliseconds(stream->getStreamDuration()-2));
 		}
 		socket.close();
 	}
@@ -69,10 +69,13 @@ void Client::run(){
 		std::cout<<"Client run"<<std::endl;
 		bool connected=false;
 		while(run_){
-			connected=connectToServer("localhost","5555");
+			connected=connectToServer(server,port);
 			if(connected){
 				sendStream();
 			}
 		}			
 	}
+
+void Client::setServer(std::string s){ server=s;}
+void Client::setPort(std::string p){ port=p;};
 
