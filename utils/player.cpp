@@ -40,7 +40,7 @@
 	void Player::run(){
 		Logger::getInstance().msg(std::string("Player: running player "));
 		while(run_)
-		if(queue->size()>0){
+		if(true){//queue->size()>0){
 			if(rate!=queue->front().getRate() || byte_rate!= queue->front().getByteRate() || channels!=queue->front().getChannels()){
 				rate=queue->front().getRate();
 				byte_rate= queue->front().getByteRate();

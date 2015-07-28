@@ -3,26 +3,37 @@
 #include <queue>
 #include "stream.h"
 #include <mutex>
+#include <condition_variable>
 class StreamQueue{
 	std::queue<Stream> que;
 	std::mutex mutex;
+	std::condition_variable condition;
+	bool not_empty;
     public:
-	StreamQueue():mutex(){};
+	StreamQueue(): not_empty(false){};
 	void push(Stream s){
-		mutex.lock();
+		std::unique_lock<std::mutex> locker(mutex);
 		que.push(s);
-		mutex.unlock();
+		not_empty=true;
+		condition.notify_one();
 	}
 	Stream& front(){
-		mutex.lock();
+		std::unique_lock<std::mutex> locker(mutex);
+		condition.wait(locker, [this]{return this->not_empty;});
+		
 		Stream &w= que.front();
-		mutex.unlock();
+		
+		locker.unlock();
 		return w;
 	}
 	void pop(){
-		mutex.lock();
+		std::unique_lock<std::mutex> locker(mutex);
+		condition.wait(locker, [this]{return this->not_empty;});
 		que.pop();
-		mutex.unlock();
+		if(que.size()<=0){
+			not_empty=false;
+		}
+		locker.unlock();
 	}
 	size_t size(){
 		return que.size();
