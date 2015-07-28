@@ -41,14 +41,14 @@
 		Logger::getInstance().msg(std::string("Player: running player "));
 		while(run_)
 		if(queue->size()>0){
-			if(rate!=queue->front().rate || encoding!= queue->front().encoding || channels!=queue->front().channels){
-				rate=queue->front().rate;
-				encoding= queue->front().encoding;
-				channels=queue->front().channels;
+			if(rate!=queue->front().getRate() || byte_rate!= queue->front().getByteRate() || channels!=queue->front().getChannels()){
+				rate=queue->front().getRate();
+				byte_rate= queue->front().getByteRate();
+				channels=queue->front().getChannels();
 				if(dev_is_open){
 					ao_close(dev);			
 				}
-				format.bits = mpg123_encsize(encoding) * BITS;
+				format.bits = byte_rate;
 				format.rate = rate;
 				format.channels = channels;
 				format.byte_format = AO_FMT_NATIVE;
@@ -56,10 +56,10 @@
 				dev = ao_open_live(driver, &format, NULL);
 				dev_is_open=true;
 			}
-			if(queue->front().volume!=volume){
-				volume=queue->front().volume;	
+			if(queue->front().getVolume()!=volume){
+				volume=queue->front().getVolume();	
 			}
-        		play(queue->front().buf,queue->front().buffer_size);
+        		play(queue->front().getBuffer(),queue->front().getBufferSize());
 			queue->pop();
 		}		
 		
@@ -123,10 +123,10 @@
 	/*If Player instance is correctly created, it connfigure device 
 	for data format included in stream and starts playing stream frame.*/
 	void Player::play(Stream s){
-		if(rate!=s.rate || encoding!= s.encoding || channels!=s.channels){
-				rate=s.rate;
-				encoding=s.encoding;
-				channels=s.channels;
+		if(rate!=s.getRate() || byte_rate!= s.getByteRate() || channels!=s.getChannels()){
+				rate=s.getRate();
+				byte_rate=s.getByteRate();
+				channels=s.getChannels();
 				if(dev_is_open){
 					ao_close(dev);			
 				}
@@ -138,21 +138,20 @@
 				dev = ao_open_live(driver, &format, NULL);
 				dev_is_open=true;
 			}
-		if(s.volume!=volume){
-			volume=s.volume;	
+		if(s.getVolume()!=volume){
+			volume=s.getVolume();	
 		}
-        		play(s.buf,s.buffer_size);
+        		std::cout<<"player::play"<<std::endl;
+			play(s.getBuffer(),s.getBufferSize());
 	}
 	
 	
 	/*It reads open file in chuncs and stores them in StreamQueue.*/
 	void Player::wrap(){
 		Logger::getInstance().msg(std::string("Player: wraping file"));
-		struct mpg123_frameinfo frameinfo;
-		mpg123_info (mh, &frameinfo);
-		std::cout<<"frame bitrate "<<frameinfo.bitrate<<std::endl;
+		byte_rate=mpg123_encsize(encoding)*BITS;
 		while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
-			Stream stream(channels, encoding, rate, buffer_size, buffer);
+			Stream stream(channels, byte_rate, rate, buffer_size, buffer);
 			queue->push(stream);
 		}
 		Logger::getInstance().msg(std::string("Player: finished wrapping"));

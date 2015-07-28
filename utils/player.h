@@ -15,16 +15,17 @@ const short BITS= 8;
 class Player: public Runnable{
 	private:
 		mpg123_handle *mh;
-    	unsigned char *buffer;
-    	size_t buffer_size;
-    	size_t done;
-    	int err;
+    		unsigned char *buffer;
+	    	size_t buffer_size;
+    		size_t done;
+	    	int err;
 	   	int driver;
-    	ao_device *dev;
+    		ao_device *dev;
 		bool dev_is_open;
-    	ao_sample_format format;
-    	int channels, encoding;
-    	long rate;
+	    	ao_sample_format format;
+    		int channels, encoding;
+		int8_t byte_rate;
+	    	long rate;
 		StreamQueue* queue;
 		int8_t volume;
 	

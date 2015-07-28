@@ -4,22 +4,22 @@
 #include "stream.h"
 
 		
-		short Stream::global_volume=0;
+		short Stream::global_volume=50;
 		
-		static void Stream::setSampleClassVolume(int8_t vol){ 
+		void Stream::setSampleClassVolume(int8_t vol){ 
 				global_volume=vol;
 		}
-		static short Stream::getSampleClassVolume(){ 
+		short Stream::getSampleClassVolume(){ 
 				return global_volume;
 		}
 		void Stream::print(){
-			std::cout<<"V: "<<(short)volume<<" CH: "<<channels<<" ENC: "<<encoding<<" R: "<<rate<<" size: "<<buffer_size<<std::endl;
+			std::cout<<"V: "<<(int)volume<<" CH: "<<(int)channels<<" BRT: "<<(int)byte_rate<<" R: "<<(int)rate<<" size: "<<(int)buffer_size<<std::endl;
 		}
-		Stream::Stream(unsigned char*b, size_t len): buf(b), length(len){};
-		Stream::Stream(){};
+	//	Stream::Stream(unsigned char*b, size_t len): buf(b), buffer_size(len){};
+	//	Stream::Stream(){};
 		Stream::Stream(unsigned char* init){
 			
-			channels=((int)init[0])<<24;
+		/*	channels=((int)init[0])<<24;
 			channels+=((int)init[1])<<16;
 			channels+=((int)init[2])<<8;
 			channels+=((int)init[3]);
@@ -36,15 +36,26 @@
 			rate=	((long)init[12])<<24;
 			rate+=	((long)init[13])<<16;
 			rate+=	((long)init[14])<<8;
+			rate+=	((long)init[15])<<0;*/
+
+			channels=((int8_t)init[0]);
+			volume=((int8_t)init[1]);
+			byte_rate=((int8_t)init[2]);
+
+
+			rate=	((long)init[12])<<24;
+			rate+=	((long)init[13])<<16;
+			rate+=	((long)init[14])<<8;
 			rate+=	((long)init[15])<<0;
+
 			
 			buffer_size=((size_t)init[16])<<24;
 			buffer_size+=((size_t)init[17])<<16;
 			buffer_size+=((size_t)init[18])<<8;
 			buffer_size+=((size_t)init[19])<<0;	
 		}
-		Stream::Stream(int chan, int enc, long ra, size_t size, unsigned char * b):
-			 channels(chan), encoding(enc), rate(ra), buffer_size(size)
+		Stream::Stream(int chan, int br, long ra, size_t size, unsigned char * b):
+			 channels(chan), byte_rate(br), rate(ra), buffer_size(size)
 		{
 				volume=Stream::global_volume;
 				buf=new unsigned char[buffer_size];
@@ -54,20 +65,10 @@
 		unsigned char* Stream::getFrame(){
 				unsigned char *ret=new unsigned char[header+buffer_size];
 				
-				ret[0]=(channels>>24) & 0xFF;
-				ret[1]=(channels>>16) & 0xFF;
-				ret[2]=(channels>>8)  & 0xFF;
-				ret[3]=channels 	  & 0xFF;
-				
-				ret[4]=(encoding>>24) & 0xFF;
-				ret[5]=(encoding>>16) & 0xFF;
-				ret[6]=(encoding>>8)  & 0xFF;
-				ret[7]=encoding 	  & 0xFF;
-				
+				ret[0]=channels;
+				ret[1]=global_volume;
+				ret[2]=byte_rate;
 				ret[8]=global_volume;
-				ret[9]=0;
-				ret[10]=0;
-				ret[11]=0;
 				ret[12]=(rate>>24) & 0xFF;
 				ret[13]=(rate>>16) & 0xFF;
 				ret[14]=(rate>>8)  & 0xFF;
@@ -86,6 +87,11 @@
 	size_t Stream::getFrameSize(){ 
 			return (header+buffer_size);
 	}
-			
+	long long Stream::getStreamDuration(){
+                                long long bytes_per_sample=((byte_rate*channels)/BITS);
+                                long long bytes_in_slice=getBufferSize();
+                                long long rate_ll=getRate();
+                                return (1000*bytes_in_slice/(bytes_per_sample))/rate_ll;
+                }			
 
 
