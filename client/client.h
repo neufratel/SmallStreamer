@@ -2,22 +2,18 @@
 
 #include <boost/array.hpp>
 #include <boost/asio.hpp>
-#include "str_queue.h"
-#include "player.h"
 #include "logger.h"
 #include "runnable.h"
+#include "playlist.h"
 using boost::asio::ip::tcp;
 
 class Client: public Runnable{
 	private:
-		bool play;
-		Player player;
 		boost::asio::io_service io_service;
 		tcp::resolver resolver;
 		tcp::resolver::iterator endpoint_iterator;
 		tcp::socket socket;
-		StreamQueue  *queue;
-		
+		PlayList* playlist;
 		/*variables used for menaging logging*/
 		bool log_conn_failed;
 		bool play_stream;
@@ -28,7 +24,7 @@ class Client: public Runnable{
 		void sendStream();
 	
 	public:
-		Client(StreamQueue *que, bool pl);
+		Client(PlayList *play, bool pl=false);
 		
 		
 		
