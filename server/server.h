@@ -32,9 +32,11 @@ class Server: public Runnable{
 	~Server(){
 		if(acceptor!=nullptr){
 			delete acceptor;
+			acceptor=nullptr;
 		}
 		if(socket!=nullptr){
 			delete socket;
+			socket=nullptr;
 		}	
 	}
 	
@@ -42,9 +44,11 @@ class Server: public Runnable{
 		if(acceptor!=nullptr){
 			std::cout<<"Clining acceptor..."<<std::endl;
 			delete acceptor;
+			acceptor=nullptr;
 		}
 		if(socket!=nullptr){
 			delete socket;
+			socket=nullptr;
 			std::cout<<"Clining socket..."<<std::endl;
 		}
 		std::cout<<"Waiting..."<<std::endl;
@@ -116,6 +120,16 @@ class Server: public Runnable{
 			frame.setData(data);
 			frame.print();
 				queue->push(frame);
+			if(stream_head!=nullptr){
+				std::cerr<<"deleting head"<<std::endl;
+				delete[] stream_head;
+				stream_head=nullptr;
+			}
+			if(data!=nullptr){
+				std::cerr<<"deleting data"<<std::endl;
+				delete[] data;
+				data=nullptr;
+			}
 	//		std::cout<<socket->available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
 		}
 	}

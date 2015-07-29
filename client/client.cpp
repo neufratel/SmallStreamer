@@ -13,7 +13,7 @@ using boost::asio::ip::tcp;
 
 	Client::Client(PlayList *play, bool pl=false)
 		:io_service(), resolver(io_service), socket(io_service), play_stream(pl),
-			server("192.168.0.5"), port("5555")
+			server("localhost"), port("5555")
 	{
 		playlist=play;
 		log_conn_failed=true;
@@ -32,11 +32,12 @@ using boost::asio::ip::tcp;
 			return true;
 		
 		}catch (std::exception& e){
-	//		std::cerr << e.what() << std::endl;
+			std::cerr << e.what() << std::endl;
 			if(log_conn_failed){
 				Logger::getInstance().msg(std::string("Client: connection failed: ")+e.what());
 				log_conn_failed=false;
 			}
+			return false;
 		}
 
 	
@@ -54,7 +55,7 @@ using boost::asio::ip::tcp;
 			 	while(stream==nullptr){
 					stream =playlist->getCurrentStream();
 				}
-			boost::asio::write(socket, boost::asio::buffer(stream->getFrame(), stream->getFrameSize()), error);
+			boost::asio::write(socket, boost::asio::buffer(stream->getFrame().get(), stream->getFrameSize()), error);
 			if(error!=0){
 				 Logger::getInstance().msg(std::string("Client: writing error: ")
 						+ error.category().name()+ std::to_string(error.value()) );

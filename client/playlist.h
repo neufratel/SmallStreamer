@@ -23,10 +23,13 @@ class AudioFile{
 		AudioFile(std::string fa) throw (std::string) :is_loaded(false), is_loading(false) {
 			size_t index= fa.find_last_of('/');
 			size_t index_dot= fa.find_last_of('.');
-			if(index_dot<0|| index_dot>fa.length() || index>index_dot) throw std::string("Unknown File Type")+fa;
-
-			if(index<0 || index > fa.length()) {index=-1;}
+			if(index<0 || index > fa.length()){index=-1;}
+			if(index_dot<0|| index_dot>fa.length() || index>index_dot){
+					 std::cerr<<index<<"  "<<index_dot<<"  "<<fa.length()<<std::endl;
+					 throw std::string("Unknown File Type ")+fa;
+			}
 			index++;
+			
 			name=fa.substr(index, index_dot-index);
 			path=fa.substr(0, index);
 			type=fa.substr(index_dot);

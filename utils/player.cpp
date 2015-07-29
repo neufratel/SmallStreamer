@@ -20,7 +20,6 @@
 		 /* It play decoded frame (buff) with size (buff_size) if device is
 		 correctly configured. If configuration is invalid it will play stream
 		 unproperly. */
- // 				mpg123_volume_change( mh,0.5) ;
         		ao_play(dev, buff, buff_size);
 
 	}
@@ -169,7 +168,7 @@
 			ao_shutdown();
 	}
 	void Player::setVolume(short vol){
-		FILE *in;
+		FILE *in=nullptr;
 		char buff[512];
 		std::stringstream comand;
 		//std::cout<<comand.str()<<std::endl;

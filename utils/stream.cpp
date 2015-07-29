@@ -2,11 +2,16 @@
 #include <cstring>
 #include <stdint.h>
 #include "stream.h"
+#include <memory>
+
+	using namespace std;
 
 		Stream::~Stream(){
-			if(buf!=nullptr){
+	/*	if(buf!=nullptr){
+				std::cerr<<"~Stream() deleting buf"<<buf<<std::endl;
 				delete[] buf;
-			}
+				buf=nullptr;
+			}*/
 
 
 		}
@@ -25,25 +30,6 @@
 	//	Stream::Stream(){};
 		Stream::Stream(unsigned char* init){
 			
-		/*	channels=((int)init[0])<<24;
-			channels+=((int)init[1])<<16;
-			channels+=((int)init[2])<<8;
-			channels+=((int)init[3]);
-
-			encoding=((int)init[4])<<24;
-			encoding+=((int)init[5])<<16;
-			encoding+=((int)init[6])<<8;
-			encoding+=((int)init[7]);
-
-			volume=	((int8_t)init[8]);
-				(init[9]);
-				(init[10]);
-				(init[11]);
-			rate=	((long)init[12])<<24;
-			rate+=	((long)init[13])<<16;
-			rate+=	((long)init[14])<<8;
-			rate+=	((long)init[15])<<0;*/
-
 			channels=((int8_t)init[0]);
 			volume=((int8_t)init[1]);
 			byte_rate=((int8_t)init[2]);
@@ -64,29 +50,36 @@
 			 channels(chan), byte_rate(br), rate(ra), buffer_size(size)
 		{
 				volume=Stream::global_volume;
-				buf=new unsigned char[buffer_size];
-				memcpy ( buf, b, buffer_size );
+				buf=shared_ptr<char>(new char[buffer_size]);
+				memcpy ( buf.get(), b, buffer_size );
 		};	
-		void Stream::setData(unsigned char * b){buf=b;};
-		unsigned char* Stream::getFrame(){
-				unsigned char *ret=new unsigned char[header+buffer_size];
+		void Stream::setData(unsigned char * b){
+			/*	if(buf!=nullptr){
+					delete[] buf;
+				}*/
+			
+				buf=shared_ptr<char>(new char[buffer_size]);b;
+				memcpy ( buf.get(), b, buffer_size );
+			};
+		shared_ptr<char> Stream::getFrame(){
+				shared_ptr<char> ret(new unsigned char[header+buffer_size]);
 				
-				ret[0]=channels;
-				ret[1]=global_volume;
-				ret[2]=byte_rate;
-				ret[8]=global_volume;
-				ret[12]=(rate>>24) & 0xFF;
-				ret[13]=(rate>>16) & 0xFF;
-				ret[14]=(rate>>8)  & 0xFF;
-				ret[15]=(rate) 	  & 0xFF;
+				ret.get()[0]=channels;
+				ret.get()[1]=global_volume;
+				ret.get()[2]=byte_rate;
+				ret.get()[8]=global_volume;
+				ret.get()[12]=(rate>>24) & 0xFF;
+				ret.get()[13]=(rate>>16) & 0xFF;
+				ret.get()[14]=(rate>>8)  & 0xFF;
+				ret.get()[15]=(rate) 	  & 0xFF;
 				
-				ret[16]=(buffer_size>>24) & 0xFF;
-				ret[17]=(buffer_size>>16) & 0xFF;	
-				ret[18]=(buffer_size>>8 ) & 0xFF;	
-				ret[19]=(buffer_size>>0 ) & 0xFF;
+				ret.get()[16]=(buffer_size>>24) & 0xFF;
+				ret.get()[17]=(buffer_size>>16) & 0xFF;	
+				ret.get()[18]=(buffer_size>>8 ) & 0xFF;	
+				ret.get()[19]=(buffer_size>>0 ) & 0xFF;
 				
 				for(int i=0; i<buffer_size; i++)
-					ret[20+i]=buf[i];
+					ret.get()[20+i]=buf.get()[i];
 
 				return ret;
 	}

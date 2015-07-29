@@ -62,7 +62,6 @@ int main(int arg, char* argv[]){
 		client.setServer(server);
 		client.start();
 		client.joinMainThread();
-		std::cout<<"Start"<<std::endl;
 
 	  }
 	  catch (std::exception& e)

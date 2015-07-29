@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include <stdint.h>
+#include <memory>
 class Stream{
 	private:
 		const short static BITS=8;
@@ -11,7 +12,7 @@ class Stream{
 		int8_t byte_rate;
 		long rate;
 		int8_t  volume;
-		unsigned char* buf;
+		std::shared_ptr<char>  buf;
 		size_t buffer_size;
 	public:
 		static const size_t header=20;
@@ -26,11 +27,11 @@ class Stream{
 		Stream(unsigned char* init);
 		Stream(int chan, int byte, long ra, size_t size, unsigned char * b);
 		void setData(unsigned char * b);
-		unsigned char* getFrame();
+		std::shared_ptr<char> getFrame();
 		size_t getFrameSize();
 		int8_t getChannels(){ return channels;};
 		long getRate(){ return rate;}
-		unsigned char* getBuffer(){ return buf;}
+		unsigned char* getBuffer(){ return buf.get();}
 		size_t getBufferSize(){ return buffer_size;}
 		int8_t getByteRate(){ return byte_rate;}
 		int8_t getVolume(){return volume;}
