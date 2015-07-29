@@ -3,7 +3,13 @@
 #include <stdint.h>
 #include "stream.h"
 
-		
+		Stream::~Stream(){
+			if(buf!=nullptr){
+				delete[] buf;
+			}
+
+
+		}
 		short Stream::global_volume=50;
 		
 		void Stream::setSampleClassVolume(int8_t vol){ 

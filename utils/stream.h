@@ -35,5 +35,6 @@ class Stream{
 		int8_t getByteRate(){ return byte_rate;}
 		int8_t getVolume(){return volume;}
 		long long getStreamDuration();	
+		~Stream();
 };
 #endif
