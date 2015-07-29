@@ -13,7 +13,7 @@ using boost::asio::ip::tcp;
 
 	Client::Client(PlayList *play, bool pl=false)
 		:io_service(), resolver(io_service), socket(io_service), play_stream(pl),
-			server("localhost"), port("5555")
+			server("192.168.0.5"), port("5555")
 	{
 		playlist=play;
 		log_conn_failed=true;
@@ -48,7 +48,7 @@ using boost::asio::ip::tcp;
 		while(playlist->size()>0)
 			{
 			
-			Stream::setSampleClassVolume(50);
+			Stream::setSampleClassVolume(30);
 			boost::system::error_code error;
 			Stream* stream=nullptr;
 			 	while(stream==nullptr){

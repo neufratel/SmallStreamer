@@ -57,8 +57,9 @@ int main(int arg, char* argv[]){
 	    //Player player(que);
 	    //player.openFile(file);
 	    //player.wrap();
-	    Client client(playlist, true);
+	   Client client(playlist, true);
 		std::cout<<"Start"<<std::endl;
+		client.setServer(server);
 		client.start();
 		client.joinMainThread();
 		std::cout<<"Start"<<std::endl;

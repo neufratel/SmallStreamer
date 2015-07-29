@@ -23,11 +23,11 @@ class AudioFile{
 		AudioFile(std::string fa) throw (std::string) :is_loaded(false), is_loading(false) {
 			size_t index= fa.find_last_of('/');
 			size_t index_dot= fa.find_last_of('.');
-			if(index_dot<0|| index_dot>fa.length() ) throw std::string("Unknown File Type")+fa;
+			if(index_dot<0|| index_dot>fa.length() || index>index_dot) throw std::string("Unknown File Type")+fa;
 
 			if(index<0 || index > fa.length()) {index=-1;}
 			index++;
-			name=fa.substr(index);
+			name=fa.substr(index, index_dot-index);
 			path=fa.substr(0, index);
 			type=fa.substr(index_dot);
 			reader=nullptr;
@@ -46,18 +46,22 @@ class AudioFile{
 			}
 		}
 		void print(){
+			std::string name_t(name);
+			std::string path_t(path);
+			while(name_t.length()<30) name_t+=" ";
+			while(path_t.length()<20) path_t+=" ";
 			if(is_loaded){
-				std::cout<<"name: " <<name<<"\t"<<path<<"\t\t"<<getAudioLengthString()<<std::endl;
+				std::cout<<"name: " <<name_t.substr(0,30)<<"\t"<<path_t.substr(0,20)<<"\t\t"<<getAudioLengthString()<<std::endl;
 			}else{
-				load();
-				std::cout<<"name: " <<name<<"\t"<<path<<"\t\t"<<std::endl;
+				//load();
+				std::cout<<"name: " <<name_t.substr(0,30)<<"\t"<<path_t.substr(0,20)<<"\t\t"<<std::endl;
 			}
 		}
 		void load(){
 			if(!is_loaded&&!is_loading){
 				is_loading=true;
 				reader=new MpgReader();
-				reader->asyncReadFile(path+name,&file_sample, &is_loaded);
+				reader->asyncReadFile(path+name+type,&file_sample, &is_loaded);
 			}
 		}
 		bool isLoaded(){
@@ -155,17 +159,21 @@ class PlayList{
 			return list.size();
 		}
 		void showCurrentAudioInfo(){
-		/*	std::string name_=list[current_position]->getName();
-			std::cout<<boost::format("\rTrack:%|3d| \t  %|.10s| %|-s|/%|.5s|" ) 
-					%current_file
-					%(boost::io::group(std::setfill('_'), std::setw(30),1)a)
-					%list[current_file]->getCurrentPosition(current_position)
-					%list[current_file]->getAudioLengthString(); 
-			std::cout<<std::flush;*/
-			//std::cout<<format;
-			 //std::cout << boost::format("%|1$1| %|2$3|") % "Hello" % 3 << std::endl;
-			std::cout<<"\r Track: "<<current_file<<"\t"<<list[current_file]->getName()<<"\t\t"
-						<<list[current_file]->getCurrentPosition(current_position)<<"/"<<list[current_file]->getAudioLengthString()<<std::flush;
+			std::string name_=list[current_file]->getName();
+			while(name_.length()<20) name_+="_";
+			std::string tile=name_.substr(0,19);
+			std::stringstream ss;
+			ss<<"\rTrack :";
+			if(current_file>99){
+				ss<<current_file;
+			}else if(current_file>9){
+				ss<<" "<<current_file;
+			}else{
+				ss<<"  "<<current_file;
+			}
+			ss<<"    "<<tile<<"  " <<list[current_file]->getCurrentPosition(current_position)
+				  <<"/"<<list[current_file]->getAudioLengthString()<<std::flush;
+			std::cout<<ss.str()<<std::flush;
 		}
 
 };
