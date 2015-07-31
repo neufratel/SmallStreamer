@@ -22,8 +22,6 @@ class Stream{
 		static short getSampleClassVolume();
 		void print();
 		
-	//	Stream(unsigned char*b, size_t len);
-	//	Stream();
 		Stream(unsigned char* init);
 		Stream(int chan, int byte, long ra, size_t size, unsigned char * b);
 		void setData(unsigned char * b);

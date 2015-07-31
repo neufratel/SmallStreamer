@@ -50,19 +50,15 @@
 			 channels(chan), byte_rate(br), rate(ra), buffer_size(size)
 		{
 				volume=Stream::global_volume;
-				buf=shared_ptr<char>(new char[buffer_size]);
+				buf=shared_ptr<char>(new char[buffer_size] , [](unsigned char* p){ delete[] p;} );
 				memcpy ( buf.get(), b, buffer_size );
 		};	
 		void Stream::setData(unsigned char * b){
-			/*	if(buf!=nullptr){
-					delete[] buf;
-				}*/
-			
-				buf=shared_ptr<char>(new char[buffer_size]);b;
+				buf=shared_ptr<char>(new char[buffer_size], [](unsigned char*p){ delete[] p;});
 				memcpy ( buf.get(), b, buffer_size );
 			};
 		shared_ptr<char> Stream::getFrame(){
-				shared_ptr<char> ret(new unsigned char[header+buffer_size]);
+				shared_ptr<char> ret(new unsigned char[header+buffer_size], [](unsigned char *p){delete[] p;} );
 				
 				ret.get()[0]=channels;
 				ret.get()[1]=global_volume;

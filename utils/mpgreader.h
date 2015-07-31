@@ -5,12 +5,13 @@
 #include "stream.h"
 #include <thread>
 #include <string>
+#include <memory>
 class MpgReader{
 	private:
 		static const short BITS=8;
 		mpg123_handle *mh;
-	    	unsigned char *buffer;
-	    	size_t buffer_size;
+		std::shared_ptr<unsigned char> buffer;
+	    static const size_t buffer_size=32768;
 		size_t done;
 	    	int err;
 		int channels, encoding;
@@ -44,10 +45,8 @@ class MpgReader{
 			/* initializations */
 			mpg123_init();
 			mh = mpg123_new(NULL, &err);
-			mpg123_volume 	( mh,1.0) ;	
-	//		buffer_size = mpg123_outblock(mh);
-			buffer_size = 32768;
-			buffer = (unsigned char*) malloc(buffer_size * sizeof(unsigned char));
+
+			buffer=std::shared_ptr<unsigned char>(new unsigned char[buffer_size], [](unsigned char*p){ delete[]p;});
 		}
 		void asyncReadFile(std::string file, std::vector<Stream> *vec, bool *finished){
 			if(!is_running){
@@ -73,8 +72,8 @@ class MpgReader{
 		void readFile(std::vector<Stream> &vec){
 			byte_rate=(mpg123_encsize(encoding) * BITS);
 			
-			while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
-				Stream stream(channels, byte_rate, rate, buffer_size, buffer);
+			while (mpg123_read(mh, buffer.get(), buffer_size, &done) == MPG123_OK){
+				Stream stream(channels, byte_rate, rate, buffer_size, buffer.get());
 				vec.push_back(stream);
 			}
 		}
@@ -83,21 +82,20 @@ class MpgReader{
 			byte_rate=(mpg123_encsize(encoding) * BITS);
 			
 			
-			while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
-				Stream stream(channels, byte_rate, rate, buffer_size, buffer);
+			while (mpg123_read(mh, buffer.get(), buffer_size, &done) == MPG123_OK){
+				Stream stream(channels, byte_rate, rate, buffer_size, buffer.get());
 				vec->push_back(stream);
 			}
 		}
 		void countFile(int *size, int* b_size_){
 				*size=0;
-			while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
+			while (mpg123_read(mh, buffer.get(), buffer_size, &done) == MPG123_OK){
 				*size=*size+1;
 			}
 			*b_size_=buffer_size;
 		}	
 		~MpgReader(){
 			/* clean up */
-			free(buffer);
 			mpg123_close(mh);
 			mpg123_delete(mh);
 			mpg123_exit();
