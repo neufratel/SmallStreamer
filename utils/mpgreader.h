@@ -18,7 +18,9 @@ class MpgReader{
 		int byte_rate;
 		int8_t volume;
 		bool is_running;
+		bool is_counting;
 		std::thread thread;
+		std::thread thread_count;
 
 
 		void threadedRead(std::string file,std::vector<Stream>* vec, bool *fin){
@@ -28,19 +30,35 @@ class MpgReader{
 			*fin=true;
 		}
 		
+		void threadedCount(std::string file, int* size, int *b_size, long *rate_, short* b_rate, bool *fin){
+			thread_count.detach();
+			openFile(file);
+			*rate_=rate;
+			*b_rate=(mpg123_encsize(encoding) * BITS);
+			countFile(size, b_size);
+			*fin=true;
+		}
+		
 	public:
-		MpgReader(): is_running(false){
+		MpgReader(): is_running(false), is_counting(false){
 			/* initializations */
 			mpg123_init();
 			mh = mpg123_new(NULL, &err);
 			mpg123_volume 	( mh,1.0) ;	
-			buffer_size = mpg123_outblock(mh);
+	//		buffer_size = mpg123_outblock(mh);
+			buffer_size = 32768;
 			buffer = (unsigned char*) malloc(buffer_size * sizeof(unsigned char));
 		}
 		void asyncReadFile(std::string file, std::vector<Stream> *vec, bool *finished){
 			if(!is_running){
 				thread= std::thread(&MpgReader::threadedRead,this,file,vec, finished);
 				is_running=true;
+			}
+		}
+		void asyncCountFile(std::string file, int *size_, int *b_size_, long *rate_, short *b_, bool *finished){
+			if(!is_counting){
+				thread_count= std::thread(&MpgReader::threadedCount, this, file, size_, b_size_, rate_,b_, finished);
+				is_counting=true;
 			}
 		} 
 		
@@ -69,6 +87,13 @@ class MpgReader{
 				Stream stream(channels, byte_rate, rate, buffer_size, buffer);
 				vec->push_back(stream);
 			}
+		}
+		void countFile(int *size, int* b_size_){
+				*size=0;
+			while (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
+				*size=*size+1;
+			}
+			*b_size_=buffer_size;
 		}	
 		~MpgReader(){
 			/* clean up */

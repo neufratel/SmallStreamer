@@ -91,6 +91,13 @@
                                 long long bytes_in_slice=getBufferSize();
                                 long long rate_ll=getRate();
                                 return (1000*bytes_in_slice/(bytes_per_sample))/rate_ll;
+                }
+	long long Stream::getStreamDurationUS(){
+                                long long bytes_per_sample=((byte_rate*channels)/BITS);
+                                long long bytes_in_slice=getBufferSize();
+                                long long rate_ll=getRate();
+                                return (1000000*bytes_in_slice/(bytes_per_sample))/rate_ll;
                 }			
+			
 
 

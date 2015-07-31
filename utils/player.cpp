@@ -27,9 +27,16 @@
 		short old_vol=volume;
 		while(run_sec_){
 			if(volume!=old_vol){
-				setVolume(volume);
-				old_vol=volume;
-			}{
+				if(volume>old_vol){
+					short step=2;
+					setVolume(old_vol+step);
+					old_vol=old_vol+step;
+				}else{
+					setVolume(volume);
+					old_vol=volume;
+				}
+		
+			}else{
 				std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			}
 		}

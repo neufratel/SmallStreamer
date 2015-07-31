@@ -31,11 +31,12 @@ class Stream{
 		size_t getFrameSize();
 		int8_t getChannels(){ return channels;};
 		long getRate(){ return rate;}
-		unsigned char* getBuffer(){ return buf.get();}
+		char* getBuffer(){ return buf.get();}
 		size_t getBufferSize(){ return buffer_size;}
 		int8_t getByteRate(){ return byte_rate;}
 		int8_t getVolume(){return volume;}
-		long long getStreamDuration();	
+		long long getStreamDuration();
+		long long getStreamDurationUS();	
 		~Stream();
 };
 #endif
