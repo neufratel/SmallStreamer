@@ -13,7 +13,6 @@ class Client: public Runnable{
 		tcp::resolver resolver;
 		tcp::resolver::iterator endpoint_iterator;
 		tcp::socket socket;
-		PlayList* playlist;
 		
 		std::string server;
 		std::string port;
@@ -27,7 +26,7 @@ class Client: public Runnable{
 		void sendStream();
 	
 	public:
-		Client(PlayList *play, bool pl=false);
+		Client( bool pl=false);
 		void setServer(std::string s);
 		void setPort(std::string p);
 		

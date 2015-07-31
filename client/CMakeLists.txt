@@ -15,7 +15,7 @@ find_package(Qt5Widgets)
 
 # build subdirs
 include_directories(${YOUR_DIRECTORY} PRIVATE ${CMAKE_SOURCE_DIR}/utils)
-add_executable(${PROJECT_NAME} main.cpp client.cpp playlist.cpp playlistwidget.cpp maincontrolpanel.cpp mainwindow.cpp) 
+add_executable(${PROJECT_NAME} main.cpp client.cpp controler.cpp playlist.cpp playlistwidget.cpp maincontrolpanel.cpp mainwindow.cpp) 
 target_link_libraries(${PROJECT_NAME} ao mpg123 pthread boost_system utils Qt5::Core Qt5::Network)
 
 qt5_use_modules(${PROJECT_NAME} Widgets)

@@ -6,7 +6,7 @@
 #include <QDebug>
 #include <QtGui>
 #include <QDragEnterEvent>
-#include "playlist.h"
+#include "controler.h"
 PlaylistWidget::PlaylistWidget(QWidget *parent) :
     QListWidget(parent)
 {
@@ -25,8 +25,8 @@ PlaylistWidget::PlaylistWidget(QWidget *parent) :
    // button_play.setVisible(true);
 
 
-    for(int i=0; i<PlayList::size(); i++)
-    this->insertItem(i, PlayList::getAudioFileName(i).c_str());
+    for(int i=0; i<(Controler::getControl()).size(); i++)
+    this->insertItem(i,(Controler::getControl()).getAudioFileName(i).c_str());
 
     connect(this, SIGNAL ( itemDoubleClicked(QListWidgetItem*)), this, SLOT (doubleClicked()));
 	
@@ -51,31 +51,14 @@ PlaylistWidget::PlaylistWidget(QWidget *parent) :
 
 void PlaylistWidget::doubleClicked(){
     qDebug()<<this->currentIndex()<<this->currentItem();
- 	PlayList::setCurrentFileIndex(this->currentRow());
+ 	Controler::getControl().setCurrentFileIndex(this->currentRow());
 }
 
 void PlaylistWidget::selected(){
-	this->setCurrentRow(PlayList::getCurrentFileIndex());
+	this->setCurrentRow(Controler::getControl().getCurrentFileIndex());
 }
 
 
-/*
-     
-    FileList::FileList()
-    {
-        setAcceptDrops(true);
-        setDragEnabled(true);
-     
-        setSelectionMode(QAbstractItemView::SingleSelection);
-        setDropIndicatorShown(true);
-        setDragDropMode(QAbstractItemView::InternalMove);
-     
-        setAlternatingRowColors(true);
-     
-        dropHintItem = new QListWidgetItem("Drop Files here...",this);
-    }
-*/
-     
     void PlaylistWidget::dragEnterEvent(QDragEnterEvent *event)
     {
         if (event->mimeData()->hasUrls())
@@ -114,9 +97,9 @@ void PlaylistWidget::selected(){
 					std::string file_path=url.toString().toStdString();
 					std::string path =file_path.substr(7, file_path.length()-6);
 					try{
-		                	PlayList::addFile(path);
+		                	Controler::getControl().addFile(path);
 							
-							new QListWidgetItem(PlayList::getAudioFileName(PlayList::size()-1).c_str(),this);
+							new QListWidgetItem(Controler::getControl().getAudioFileName(Controler::getControl().size()-1).c_str(),this);
                 
                 
         		    }catch(std::string e)

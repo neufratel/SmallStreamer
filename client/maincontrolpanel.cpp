@@ -1,7 +1,9 @@
 #include "maincontrolpanel.h"
 #include <QDebug>
-#include "playlist.h"
+#include "controler.h"
 #include "stream.h"
+
+
 MainControlPanel::MainControlPanel(QWidget *parent) :
     QWidget(parent), playing(false), progress_value(0)
 {
@@ -51,18 +53,19 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
 }
 
 void MainControlPanel::autoplay(){
-		PlayList::setAutoPlay(auto_play_box->isChecked());
+		
+	Controler::getControl().setAutoPlay(auto_play_box->isChecked());
 }
 
 void MainControlPanel::play(){
 	if(playing==true){
 		qDebug()<<"Stoping...";
-		PlayList::stop();
+		Controler::getControl().stop();
 		button_play->setText("P");
 		playing=false;
 	}else{
 		qDebug()<<"Playing...";
-		PlayList::play();
+	 	Controler::getControl().play();
 		button_play->setText("S");
 		playing=true;
 	}
@@ -70,21 +73,21 @@ void MainControlPanel::play(){
 
 void MainControlPanel::next(){
     qDebug()<<"Next";
-	PlayList::setCurrentFileIndex(PlayList::getCurrentFileIndex()+1);
+	Controler::getControl().setCurrentFileIndex(Controler::getControl().getCurrentFileIndex()+1);
 }
 
 void MainControlPanel::pierv(){
     qDebug()<<"Pierv";
-	PlayList::setCurrentFileIndex(PlayList::getCurrentFileIndex()-1);
+	Controler::getControl().setCurrentFileIndex(Controler::getControl().getCurrentFileIndex()-1);
 }
 
 void MainControlPanel::setProgress(){
 	if(playing){
 		try{
-			progress_value=(100*PlayList::getCurrentPosition())/PlayList::getCurrentAudioSize();
+			progress_value=(100*Controler::getControl().getCurrentSampleIndex())/Controler::getControl().getAudioSize(Controler::getControl().getCurrentFileIndex());
 	    }catch(std::logic_error e) {
 
-    		std::cerr << e.what();
+    		std::cerr <<"MainControlPanel"<< e.what();
 			progress_value=0;
 		}
 	}
@@ -97,7 +100,7 @@ void MainControlPanel::setVolume(){
 
 
 void MainControlPanel::refreshButtonPlay(){
-	playing=PlayList::isPlaying();
+	playing=Controler::getControl().isPlaying();
 	if(playing){
 		button_play->setText("S");
 	}else{

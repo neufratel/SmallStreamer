@@ -6,6 +6,7 @@
 #include "player.h"
 #include "playlist.h"
 #include "mainwindow.h"
+#include "controler.h"
 #include <QtWidgets/QApplication>
 using boost::asio::ip::tcp;
 
@@ -33,8 +34,8 @@ int main(int arg, char* argv[]){
 	 		{
 			std::cerr << e << std::endl;
 	  		}	
-
 		}
+		Controler::getControl().setPlayList(playlist);
 	//	playlist.addFile(argv[2]);
 	/*	playlist.show();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10000));
@@ -60,7 +61,8 @@ int main(int arg, char* argv[]){
 	    //Player player(que);
 	    //player.openFile(file);
 	    //player.wrap();
-	   Client client(playlist, true);
+		
+	   	Client client( true);
 		std::cout<<"Start"<<std::endl;
 		client.setServer(server);
 		client.start();

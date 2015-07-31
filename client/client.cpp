@@ -7,15 +7,14 @@
 #include "runnable.h"
 #include "client.h"
 #include "playlist.h"
-
+#include "controler.h"
 using boost::asio::ip::tcp;
 
 
-	Client::Client(PlayList *play, bool pl=false)
+	Client::Client( bool pl=false)
 		:io_service(), resolver(io_service), socket(io_service), play_stream(pl),
 			server("localhost"), port("5555")
 	{
-		playlist=play;
 		log_conn_failed=true;
 		Logger::getInstance().msg(std::string("Client: module created"));
 	}
@@ -46,13 +45,13 @@ using boost::asio::ip::tcp;
 
 	void Client::sendStream(){
 		boost::system::error_code error;
-		while(playlist->size()>0)
+		while(Controler::getControl().size()>0)
 			{
 			
 			boost::system::error_code error;
 			Stream* stream=nullptr;
 			 	while(stream==nullptr){
-					stream =playlist->getCurrentStream();
+					stream = Controler::getControl().getCurrentStream();
 				}
 			boost::asio::write(socket, boost::asio::buffer(stream->getFrame().get(), stream->getFrameSize()), error);
 			if(error!=0){
