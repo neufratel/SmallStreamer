@@ -9,6 +9,7 @@
 #include <thread>
 #include <chrono>
 #include "runnable.h"
+#include <memory>
 
 typedef std::chrono::duration<int,std::milli> milisec;
 using boost::asio::ip::tcp;
@@ -71,10 +72,6 @@ class Server: public Runnable{
 				if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
-	/*			if(message==true){
-					std::cout<<"Waiting for head..."<<std::endl;
-					message=false;
-				}*/
 				++waiting;
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			}
@@ -88,22 +85,19 @@ class Server: public Runnable{
 			}
 	
 	
-			unsigned char* stream_head =new unsigned char[Stream::header]; //TO DO clining this meemory lick
-			   
+			std::shared_ptr<unsigned char> stream_head=std::shared_ptr<unsigned char>(new unsigned char[Stream::header], [](unsigned char *p){ delete[] p; } ); 
 			boost::system::error_code ignored_error;
-			size_t len=boost::asio::read(*socket,boost::asio::buffer(stream_head, Stream::header), ignored_error);
-			Stream frame(stream_head);
+			size_t len=boost::asio::read(*socket,boost::asio::buffer(stream_head.get(), Stream::header), ignored_error);
+			Stream frame(stream_head.get());
 	/*		std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
 					<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;*/
 
 			while(socket->available()<frame.getBufferSize()&&waiting<timeout_time){
-				if(!acceptor->is_open()){
+	
+			if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
-			/*	if(message==true){
-					std::cout<<"Waiting for data..."<<std::endl;
-					message=false;
-				}*/
+				
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			}
 			message=true;
@@ -114,23 +108,14 @@ class Server: public Runnable{
 			}else{
 				waiting=0;
 			}
-
-			unsigned char *data = new unsigned char[frame.getBufferSize()];
-			len=boost::asio::read(*socket,boost::asio::buffer(data, frame.getBufferSize()), ignored_error);
-			frame.setData(data);
+			
+			std::shared_ptr<unsigned char> data=std::shared_ptr<unsigned char>(new unsigned char[frame.getBufferSize()], [](unsigned char *p){ delete[] p; } );
+			
+			len=boost::asio::read(*socket,boost::asio::buffer(data.get(), frame.getBufferSize()), ignored_error);
+			
+			frame.setData(data.get());
 			frame.print();
-				queue->push(frame);
-			if(stream_head!=nullptr){
-				std::cerr<<"deleting head"<<std::endl;
-				delete[] stream_head;
-				stream_head=nullptr;
-			}
-			if(data!=nullptr){
-				std::cerr<<"deleting data"<<std::endl;
-				delete[] data;
-				data=nullptr;
-			}
-	//		std::cout<<socket->available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
+			queue->push(frame);
 		}
 	}
 	void run(){
