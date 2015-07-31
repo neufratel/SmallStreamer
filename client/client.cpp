@@ -49,7 +49,6 @@ using boost::asio::ip::tcp;
 		while(playlist->size()>0)
 			{
 			
-			Stream::setSampleClassVolume(30);
 			boost::system::error_code error;
 			Stream* stream=nullptr;
 			 	while(stream==nullptr){
@@ -61,7 +60,7 @@ using boost::asio::ip::tcp;
 						+ error.category().name()+ std::to_string(error.value()) );
 				 return;
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(stream->getStreamDuration()-2));
+			std::this_thread::sleep_for(std::chrono::microseconds(stream->getStreamDurationUS()-1000));
 		}
 		socket.close();
 	}

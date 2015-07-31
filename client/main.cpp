@@ -5,10 +5,13 @@
 #include "str_queue.h"
 #include "player.h"
 #include "playlist.h"
+#include "mainwindow.h"
+#include <QtWidgets/QApplication>
 using boost::asio::ip::tcp;
 
 
 int main(int arg, char* argv[]){
+	QApplication a(arg, argv);
     // ...
 		
 	/*if(arg<2)
@@ -21,7 +24,7 @@ int main(int arg, char* argv[]){
 	
 	std::cout<<"dur: "<<file.getAudioDuration()<<std::endl;
 	std::cout<<"dur: "<<file.getSliceDuration()<<std::endl;*/
-	try{
+//	try{
 		PlayList* playlist=new PlayList();
 		for(int i=2; i<arg; i++){
 			try{
@@ -61,13 +64,15 @@ int main(int arg, char* argv[]){
 		std::cout<<"Start"<<std::endl;
 		client.setServer(server);
 		client.start();
-		client.joinMainThread();
+		MainWindow w;
+		w.show();
+	//	client.joinMainThread();
 
-	  }
+	/*  }
 	  catch (std::exception& e)
 	  {
 		std::cerr << e.what() << std::endl;
-	  }
-  return 0;
+	  }*/
+  return a.exec();
 }
 
