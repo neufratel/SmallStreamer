@@ -73,12 +73,12 @@ void MainControlPanel::play(){
 
 void MainControlPanel::next(){
     qDebug()<<"Next";
-	Controler::getControl().setCurrentFileIndex(Controler::getControl().getCurrentFileIndex()+1);
+	Controler::getControl().nextFile();
 }
 
 void MainControlPanel::pierv(){
     qDebug()<<"Pierv";
-	Controler::getControl().setCurrentFileIndex(Controler::getControl().getCurrentFileIndex()-1);
+	Controler::getControl().prevFile();
 }
 
 void MainControlPanel::setProgress(){

@@ -33,10 +33,23 @@ int  Controler::getPlayListSize(){
 			return 0;
 		}
 }
-void Controler::setCurrentFileIndex(unsigned int w){ current_file_index=w;}
+void Controler::setCurrentFileIndex(unsigned int w){ 
+			current_file_index=w;
+			current_sample_index=0;
+}
 unsigned int Controler::getCurrentFileIndex(){ return current_file_index;}
 void Controler::setCurrentSampleIndex(unsigned int w){ current_sample_index=w;}
 unsigned int Controler::getCurrentSampleIndex(){ return current_sample_index;}
+
+void Controler::nextFile(){
+			current_file_index++;
+			current_sample_index=0;
+}
+void Controler::prevFile(){
+			current_file_index--;
+			current_sample_index=0;
+}
+
 
 unsigned int Controler::getAudioSize(unsigned int f){
 		unsigned int ret=0;

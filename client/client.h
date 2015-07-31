@@ -26,7 +26,7 @@ class Client: public Runnable{
 		void sendStream();
 	
 	public:
-		Client( bool pl=false);
+		Client( bool play);
 		void setServer(std::string s);
 		void setPort(std::string p);
 		

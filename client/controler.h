@@ -40,6 +40,8 @@ class Controler{
 		void addFile(std::string path);
 		unsigned int size();
 		Stream* getCurrentStream();
+		void nextFile();
+		void prevFile();
 };
 
 #endif
