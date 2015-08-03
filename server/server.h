@@ -32,9 +32,11 @@ class Server: public Runnable{
 	~Server(){
 		if(acceptor!=nullptr){
 			delete acceptor;
+			acceptor=nullptr;
 		}
 		if(socket!=nullptr){
 			delete socket;
+			socket=nullptr;
 		}	
 	}
 	
@@ -42,16 +44,18 @@ class Server: public Runnable{
 		if(acceptor!=nullptr){
 			std::cout<<"Clining acceptor..."<<std::endl;
 			delete acceptor;
+			acceptor=nullptr;
 		}
 		if(socket!=nullptr){
 			delete socket;
+			socket=nullptr;
 			std::cout<<"Clining socket..."<<std::endl;
 		}
 		std::cout<<"Waiting..."<<std::endl;
 		acceptor=new tcp::acceptor(io_service, tcp::endpoint(tcp::v4(), 5555));
 		socket = new tcp::socket(io_service);
 		acceptor->listen(boost::asio::socket_base::max_connections, ec);
-		std::cout<<"Server is waiting for new connection";
+		std::cout<<"Server is waiting for new connection"<<std::endl;
 		Logger::getInstance().msg(std::string("Waiting for new connection..."));
 		acceptor->accept(*socket);     
 		Logger::getInstance().msg(std::string("Connected"));
@@ -67,10 +71,10 @@ class Server: public Runnable{
 				if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
-				if(message==true){
+	/*			if(message==true){
 					std::cout<<"Waiting for head..."<<std::endl;
 					message=false;
-				}
+				}*/
 				++waiting;
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			}
@@ -84,22 +88,22 @@ class Server: public Runnable{
 			}
 	
 	
-			unsigned char* var= new unsigned char[Stream::header];
+			unsigned char* stream_head =new unsigned char[Stream::header]; //TO DO clining this meemory lick
 			   
 			boost::system::error_code ignored_error;
-			size_t len=boost::asio::read(*socket,boost::asio::buffer(var, Stream::header), ignored_error);
-			Stream frame(var);
-			std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
-					<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;
+			size_t len=boost::asio::read(*socket,boost::asio::buffer(stream_head, Stream::header), ignored_error);
+			Stream frame(stream_head);
+	/*		std::cout<<"C: "<<frame.channels<<" E: "<<frame.encoding
+					<<" R: "<<frame.rate<<" Error:"<<ignored_error<<std::endl;*/
 
-			while(socket->available()<frame.buffer_size&&waiting<timeout_time){
+			while(socket->available()<frame.getBufferSize()&&waiting<timeout_time){
 				if(!acceptor->is_open()){
 					std::cout<<"Stream broke..."<<std::endl;
 				}
-				if(message==true){
+			/*	if(message==true){
 					std::cout<<"Waiting for data..."<<std::endl;
 					message=false;
-				}
+				}*/
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
 			}
 			message=true;
@@ -111,12 +115,22 @@ class Server: public Runnable{
 				waiting=0;
 			}
 
-			unsigned char *data = new unsigned char[frame.buffer_size];
-			len=boost::asio::read(*socket,boost::asio::buffer(data, frame.buffer_size), ignored_error);
+			unsigned char *data = new unsigned char[frame.getBufferSize()];
+			len=boost::asio::read(*socket,boost::asio::buffer(data, frame.getBufferSize()), ignored_error);
 			frame.setData(data);
 			frame.print();
 				queue->push(frame);
-			std::cout<<socket->available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
+			if(stream_head!=nullptr){
+				std::cerr<<"deleting head"<<std::endl;
+				delete[] stream_head;
+				stream_head=nullptr;
+			}
+			if(data!=nullptr){
+				std::cerr<<"deleting data"<<std::endl;
+				delete[] data;
+				data=nullptr;
+			}
+	//		std::cout<<socket->available()<<"\t"<<len<<"\t"<<ignored_error<<std::endl;
 		}
 	}
 	void run(){
