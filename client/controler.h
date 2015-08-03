@@ -1,6 +1,7 @@
 #ifndef __CONTROLER_H_
 #define __CONTROLER_H_
 #include <memory>
+#include <mutex>
 #include "playlist.h"
 #include "stream.h"
 
@@ -10,6 +11,7 @@
 	using namespace std;
 class Controler{
 		static Controler controler;
+		static std::recursive_mutex mutex;
 		shared_ptr<PlayList> playlist;
 		unsigned int current_file_index;
 		unsigned int current_sample_index;
@@ -22,6 +24,7 @@ class Controler{
 	
 	public:
 		static Controler& getControl(){
+			std::lock_guard<std::recursive_mutex> lock(mutex);
 			return controler;
 		}
 		void setPlayList(shared_ptr<PlayList> p);

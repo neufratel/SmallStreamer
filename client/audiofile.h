@@ -62,7 +62,7 @@ class AudioFile{
 		}
 		Stream* getStream(int cnt){
 			load();
-			while(file_sample.size()==0){
+			while(file_sample.size()<10&&(!is_loaded)){
 					std::cout<<"loading :"<<name<<std::endl;
 					std::this_thread::sleep_for(std::chrono::milliseconds(10));;
 			}

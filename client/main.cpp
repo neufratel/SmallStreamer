@@ -7,6 +7,7 @@
 #include "playlist.h"
 #include "mainwindow.h"
 #include "controler.h"
+#include "clientcontroler.h"
 #include <QtWidgets/QApplication>
 using boost::asio::ip::tcp;
 
@@ -66,6 +67,8 @@ int main(int arg, char* argv[]){
 		std::cout<<"Start"<<std::endl;
 		client.setServer(server);
 		client.start();
+		
+		ClientControler::getControl().setClient(&client);
 		MainWindow w;
 		w.show();
 	//	client.joinMainThread();

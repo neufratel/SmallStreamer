@@ -13,7 +13,7 @@ using boost::asio::ip::tcp;
 
 	Client::Client( bool pl=false)
 		:io_service(), resolver(io_service), socket(io_service), play_stream(pl),
-			server("localhost"), port("5555")
+			server("localhost"), port("5555"), maintain_connection(false)
 	{
 		log_conn_failed=true;
 		Logger::getInstance().msg(std::string("Client: module created"));
@@ -21,6 +21,7 @@ using boost::asio::ip::tcp;
 		
 	bool Client::connectToServer( std::string server, std::string port){
 
+		std::cerr<<std::string("Client: connecting to: ")+server+":"+port<<std::endl;
 		tcp::resolver::query query(server, port);
 		endpoint_iterator = resolver.resolve(query);
 		
@@ -28,6 +29,7 @@ using boost::asio::ip::tcp;
 			boost::asio::connect(socket, endpoint_iterator);
 			log_conn_failed=true;
 			Logger::getInstance().msg(std::string("Client: connected to: ")+server+":"+port);
+			maintain_connection=true;
 			return true;
 		
 		}catch (std::exception& e){
@@ -45,7 +47,7 @@ using boost::asio::ip::tcp;
 
 	void Client::sendStream(){
 		boost::system::error_code error;
-		while(Controler::getControl().size()>0)
+		while(maintain_connection)
 			{
 			
 			boost::system::error_code error;
@@ -62,6 +64,7 @@ using boost::asio::ip::tcp;
 			std::this_thread::sleep_for(std::chrono::microseconds(stream->getStreamDurationUS()-1000));
 		}
 		socket.close();
+		return;
 	}
 	
 void Client::run(){
@@ -75,6 +78,10 @@ void Client::run(){
 		}			
 	}
 
-void Client::setServer(std::string s){ server=s;}
+void Client::setServer(std::string s){ 
+		std::cerr<<"Client:: zmiana servera:"<<server<<" na "<<s<<std::endl;	
+		server=s;
+}
 void Client::setPort(std::string p){ port=p;};
+void Client::setMaintainConnection(bool con){ maintain_connection=con;}
 

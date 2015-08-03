@@ -10,9 +10,9 @@
 PlaylistWidget::PlaylistWidget(QWidget *parent) :
     QListWidget(parent)
 {
-    this->setGeometry(30,150, 270, 120);
-    this->setFixedHeight(300);
-    this->setFixedWidth(270);
+    this->setGeometry(30,30, 270, 120);
+  //  this->setFixedHeight(300);
+  //  this->setFixedWidth(270);
     this->setVisible(true);
 
  //   list = new QListWidget(this);

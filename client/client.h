@@ -1,3 +1,6 @@
+#ifndef __CLIENT_H__
+#define __CLIENT_H__
+
 #include <iostream>
 
 #include <boost/array.hpp>
@@ -19,6 +22,7 @@ class Client: public Runnable{
 		/*variables used for menaging logging*/
 		bool log_conn_failed;
 		bool play_stream;
+		volatile bool maintain_connection;
 		int connection_timeout;
 		
 		void run();
@@ -29,6 +33,9 @@ class Client: public Runnable{
 		Client( bool play);
 		void setServer(std::string s);
 		void setPort(std::string p);
+		void setMaintainConnection(bool con);
 		
 		
 };
+
+#endif

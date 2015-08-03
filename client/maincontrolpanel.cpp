@@ -49,14 +49,14 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
 
    
     progress->setVisible(true);
-    connect(progress, SIGNAL (valueChanged(int)), this, SLOT (changeProgress()));
+    connect(progress, SIGNAL (sliderMoved(int)), this, SLOT (changeProgress()));
     a=0;
     timer= new QTimer(this);
     connect(timer, SIGNAL (timeout()), this, SLOT (setProgress()));
     timer->start(100);
 
   
-    volume->setGeometry(230, 30, 70, 20);
+ //   volume->setGeometry(230, 30, 70, 20);
     connect(volume, SIGNAL (valueChanged(int)), this, SLOT (setVolume()));
     volume->show();
 	
@@ -67,12 +67,12 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
 	connect(auto_play_box, SIGNAL (stateChanged(int)), this, SLOT(autoplay()));
 	
 	song_name->setFont(QFont( "lucida", 12, QFont::Bold, true ));
-	song_name->setGeometry(QRect(NAME_POINT, NAME_SIZE));
+	//song_name->setGeometry(QRect(NAME_POINT, NAME_SIZE));
 	song_name->setVisible(true);
 	
 	//song_time = new QLabel("00:00/00:00", this);
 	song_time->setFont(QFont( "lucida", 12, QFont::Bold, true ));
-	song_time->setGeometry(QRect(NAME_POINT, NAME_SIZE));
+	//song_time->setGeometry(QRect(NAME_POINT, NAME_SIZE));
 	song_time->setVisible(true);
 
 }
@@ -151,6 +151,8 @@ void MainControlPanel::resizeEvent(QResizeEvent* event)
 }
 
 void MainControlPanel::changeProgress(){
+	std::cerr<<"Slider moved"<<std::endl;
+
 	Controler::getControl().setCurrentSampleIndex(progress->value());
 }
 
