@@ -85,7 +85,8 @@ class Server: public Runnable{
 			}
 	
 	
-			std::shared_ptr<unsigned char> stream_head=std::shared_ptr<unsigned char>(new unsigned char[Stream::header], [](unsigned char *p){ delete[] p; } ); 
+			std::shared_ptr<unsigned char> stream_head=std::shared_ptr<unsigned char>(new unsigned char[Stream::header], [](unsigned char *p){ 
+				std::cout<<"destruktor head00"<<std::endl; delete[] p; } ); 
 			boost::system::error_code ignored_error;
 			size_t len=boost::asio::read(*socket,boost::asio::buffer(stream_head.get(), Stream::header), ignored_error);
 			Stream frame(stream_head.get());
