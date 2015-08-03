@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QListWidget>
+#include <QtWidgets/QPlainTextEdit>
 #include <QTimer>
 #include <QtWidgets/QPushButton>
 #include <QSize>
@@ -10,13 +11,13 @@
 
 #include <list>
 
-class ServerDescription{
+class ServerDescription: public QListWidgetItem{
 	public:
 		std::string ip;
 		std::string port;
 		std::string name;
-		ServerDescription(std::string n, std::string i, std::string p):
-			name(n), ip(i), port(p)		
+		ServerDescription(std::string n, std::string i, std::string p, QListWidget* widget):
+			QListWidgetItem(n.c_str(),widget), name(n), ip(i), port(p)		
 		{
 			
 		}
@@ -24,14 +25,16 @@ class ServerDescription{
 
 };
 
-
 class ClientControlPanel : public QWidget
 {
     Q_OBJECT
  	QListWidget list;
 	QPushButton button_add;
-	static const QSize B_ADD_SIZE=QSize(20,20);
-	static const QPoint B_ADD_POINT=QPoint(0,20);
+	QPlainTextEdit text_name;
+	QPlainTextEdit text_ip;
+	QPlainTextEdit text_port;
+	static const QSize B_ADD_SIZE=QSize(35,35);
+	static const QPoint B_ADD_POINT=QPoint(0,37);
 	std::list<ServerDescription> server_list;
 
 	virtual void resizeEvent(QResizeEvent* event);
