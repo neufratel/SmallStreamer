@@ -2,45 +2,61 @@
 #include <QDebug>
 #include "controler.h"
 #include "stream.h"
+#include <QPoint>
+#include <QRect>
+#include <QFont>
 
 
 MainControlPanel::MainControlPanel(QWidget *parent) :
-    QWidget(parent), playing(false), progress_value(0)
+    QWidget(parent), playing(false), progress_value(0), button_play(new QPushButton("P",this)),
+	progress(new QSlider(Qt::Horizontal,this)), 
+	volume(new QSlider(Qt::Horizontal,this)),
+	song_time(new QLabel("00:00/00:00", this)),
+	song_name(new QLabel("Waiting...", this))
+
 {
-   this->setGeometry(30,30, 270, 120);
+   this->setGeometry(QRect(CONTROL_POINT,CONTROL_SIZE));
    this->setFixedHeight(120);
-   this->setFixedWidth(270);
+ //  this->setFixedWidth(270);
    this->setVisible(true);
 
-    button_play=new QPushButton("P", this);
-    button_play->setGeometry(30, 30, 50, 30);
+//    button_play=new QPushButton("P", this);
+    QPoint point(30,30);
+
+  
+    button_play->setGeometry(QRect(B_PLAY_POINT, B_PLAY_SIZE));
     connect(button_play, SIGNAL (released()), this, SLOT (play()));
     button_play->setVisible(true);
 	button_play_timer= new QTimer(this);
     connect(button_play_timer, SIGNAL (timeout()), this, SLOT (refreshButtonPlay()));
     button_play_timer->start(300);
 
+    button_stop=new QPushButton("||", this);
+    button_stop->setGeometry(QRect(B_STOP_POINT, B_STOP_SIZE));
+    //connect(button_next, SIGNAL (released()), this, SLOT (next()));
+    button_stop->setVisible(true);
+
 
     button_next=new QPushButton(">>", this);
-    button_next->setGeometry(100, 30, 50, 30);
+    button_next->setGeometry(QRect(B_NEXT_POINT, B_NEXT_SIZE));
     connect(button_next, SIGNAL (released()), this, SLOT (next()));
     button_next->setVisible(true);
 
     button_pierv=new QPushButton("<<", this);
-    button_pierv->setGeometry(170, 30, 50, 30);
+    button_pierv->setGeometry(QRect(B_PREV_POINT, B_PREV_SIZE));
     connect(button_pierv, SIGNAL (released()), this, SLOT (pierv()));
     button_pierv->setVisible(true);
 
-    progress =new QProgressBar(this);
-    progress->setGeometry(30, 70, 190, 30);
+   
     progress->setVisible(true);
+    connect(progress, SIGNAL (valueChanged(int)), this, SLOT (changeProgress()));
     a=0;
     timer= new QTimer(this);
     connect(timer, SIGNAL (timeout()), this, SLOT (setProgress()));
     timer->start(100);
 
-    volume = new QSlider(this);
-    volume->setGeometry(230, 30, 20, 70);
+  
+    volume->setGeometry(230, 30, 70, 20);
     connect(volume, SIGNAL (valueChanged(int)), this, SLOT (setVolume()));
     volume->show();
 	
@@ -49,6 +65,15 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
 	auto_play_box->setText("AutoPlay");
 	auto_play_box->setVisible(true);
 	connect(auto_play_box, SIGNAL (stateChanged(int)), this, SLOT(autoplay()));
+	
+	song_name->setFont(QFont( "lucida", 12, QFont::Bold, true ));
+	song_name->setGeometry(QRect(NAME_POINT, NAME_SIZE));
+	song_name->setVisible(true);
+	
+	//song_time = new QLabel("00:00/00:00", this);
+	song_time->setFont(QFont( "lucida", 12, QFont::Bold, true ));
+	song_time->setGeometry(QRect(NAME_POINT, NAME_SIZE));
+	song_time->setVisible(true);
 
 }
 
@@ -82,9 +107,14 @@ void MainControlPanel::pierv(){
 }
 
 void MainControlPanel::setProgress(){
+	if(Controler::getControl().size()){
+		song_name->setText(Controler::getControl().getAudioFileName(Controler::getControl().getCurrentFileIndex()).c_str());
+		song_time->setText((Controler::getControl().getCurrentPositionTime()+"/"+Controler::getControl().getCurrentFileTime()).c_str());
+	}
 	if(playing){
+		progress->setMaximum(Controler::getControl().getAudioSize(Controler::getControl().getCurrentFileIndex()));
 		try{
-			progress_value=(100*Controler::getControl().getCurrentSampleIndex())/Controler::getControl().getAudioSize(Controler::getControl().getCurrentFileIndex());
+			progress_value=Controler::getControl().getCurrentSampleIndex();
 	    }catch(std::logic_error e) {
 
     		std::cerr <<"MainControlPanel"<< e.what();
@@ -107,6 +137,25 @@ void MainControlPanel::refreshButtonPlay(){
 		button_play->setText("P");
 	}
 }
+
+void MainControlPanel::resizeEvent(QResizeEvent* event)
+{
+   QWidget::resizeEvent(event);
+   // Your code here.
+	
+	 volume->setGeometry(QRect(QPoint(this->width(), this->height())-VOLUME_POINT,VOLUME_SIZE));
+	progress->setGeometry(QRect(PROG_BAR_POINT, QSize(this->width()-80, this->height()-80)));
+	song_name->setGeometry(QRect(NAME_POINT, QSize(this->width()-150, 30)));
+	song_time->setGeometry(QRect(QPoint(this->width()-125 ,30), S_TIME_SIZE));
+	
+}
+
+void MainControlPanel::changeProgress(){
+	Controler::getControl().setCurrentSampleIndex(progress->value());
+}
+
+
+
 
 
 

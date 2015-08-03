@@ -18,6 +18,7 @@ class Controler{
 		Controler();	
 		Controler(const Controler&)=delete;
 		Controler& operator=(const Controler&) = delete;
+		std::string convertTimeMsToString(int ms);
 	
 	public:
 		static Controler& getControl(){
@@ -37,6 +38,9 @@ class Controler{
 		unsigned int getCurrentSampleIndex();
 		unsigned int getAudioSize(unsigned int f);
 		std::string getAudioFileName(unsigned int i);
+		std::string getAudioFileTime(unsigned int file_, unsigned int sample_);
+		std::string getCurrentPositionTime();
+		std::string getCurrentFileTime();
 		void addFile(std::string path);
 		unsigned int size();
 		Stream* getCurrentStream();

@@ -16,6 +16,15 @@ void Controler::setPlayList(PlayList *p){
 
 }
 
+std::string Controler::getAudioFileTime(unsigned int file_, unsigned int sample_){
+	if(current_file_index<playlist->size()){
+		
+
+	}else{
+		return "00:00/00:00";
+	}
+
+}
 unsigned int Controler::size(){ 
 			if(playlist.get()!=nullptr){
 				return playlist->size();
@@ -34,6 +43,7 @@ int  Controler::getPlayListSize(){
 		}
 }
 void Controler::setCurrentFileIndex(unsigned int w){ 
+			playlist->at(current_file_index)->release();
 			current_file_index=w;
 			current_sample_index=0;
 }
@@ -42,10 +52,13 @@ void Controler::setCurrentSampleIndex(unsigned int w){ current_sample_index=w;}
 unsigned int Controler::getCurrentSampleIndex(){ return current_sample_index;}
 
 void Controler::nextFile(){
-			current_file_index++;
+			playlist->at(current_file_index)->release();
 			current_sample_index=0;
+			current_file_index++;
+			
 }
 void Controler::prevFile(){
+			playlist->at(current_file_index)->release();
 			current_file_index--;
 			current_sample_index=0;
 }
@@ -86,15 +99,15 @@ Stream* Controler::getCurrentStream(){
 							stream=playlist->at(current_file_index)->getStream(current_sample_index);
 							current_sample_index++;
 						}else if(auto_play){
-							current_file_index++;
-							current_sample_index=0;
+							nextFile();
 						}else{
 						//	std::cerr<<"Waiting after file ended"<<std::endl;
 							play_file=false;
+							setCurrentSampleIndex(0);
 							std::this_thread::sleep_for(std::chrono::milliseconds(100));
 						}
 					}else if(auto_play){
-						current_file_index=0;
+						setCurrentFileIndex(0);
 					}else{
 						std::cerr<<"playlist ended"<<std::endl;
 					}
@@ -105,6 +118,25 @@ Stream* Controler::getCurrentStream(){
 			}
 			return stream;
 		}
+
+std::string Controler::convertTimeMsToString(int ms){
+			std::stringstream ss;
+			ss<<(int)ms/60000<<":";
+			int var=(ms%60000)/1000;
+			if(var<10){ss<<0<<var;}
+			else{ ss<<var;}
+			ss.flush();
+			return std::string(ss.str());
+		}
+std::string Controler::getCurrentPositionTime(){
+		return convertTimeMsToString(playlist->at(current_file_index)->getSliceDuration()*current_sample_index);
+}
+std::string Controler::getCurrentFileTime(){
+		return convertTimeMsToString(playlist->at(current_file_index)->getSliceDuration()*playlist->at(current_file_index)->size());
+}
+
+
+
 
 
 
