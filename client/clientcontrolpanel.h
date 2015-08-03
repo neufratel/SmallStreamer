@@ -10,13 +10,13 @@
 
 #include <list>
 
-class ServerDescription{
+class ServerDescription: public QListWidgetItem{
 	public:
 		std::string ip;
 		std::string port;
 		std::string name;
-		ServerDescription(std::string n, std::string i, std::string p):
-			name(n), ip(i), port(p)		
+		ServerDescription(std::string n, std::string i, std::string p, QListWidget* widget):
+			QListWidgetItem(n,widget) name(n), ip(i), port(p)		
 		{
 			
 		}

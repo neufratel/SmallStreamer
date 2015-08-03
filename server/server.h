@@ -7,6 +7,7 @@
 #include "stream.h"
 #include "logger.h"
 #include <thread>
+#include <string>
 #include <chrono>
 #include "runnable.h"
 #include <memory>
@@ -21,10 +22,11 @@ class Server: public Runnable{
 	boost::system::error_code ec;
 	StreamQueue* queue;
 	int timeout_time;
+	unsigned int port;
 		
 	public:	
 		
-	Server(StreamQueue* que): io_service(){
+	Server(StreamQueue* que): io_service(), port(5555) {
 		queue=que;
 		acceptor=nullptr;
 		timeout_time=20000;
@@ -39,6 +41,10 @@ class Server: public Runnable{
 			delete socket;
 			socket=nullptr;
 		}	
+	}
+	void setPort(std::string p){
+		port= std::stoi(p);
+		std::cerr<<port<<" "<<p<<std::endl;
 	}
 	
 	void waitConnection(){

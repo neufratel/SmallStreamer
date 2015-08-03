@@ -18,12 +18,13 @@ void ClientControlPanel::resizeEvent(QResizeEvent* event){
 
 void ClientControlPanel::add_server(){
 	
-	ServerDescription server("localhost", "127.0.0.1", "5555");
-	server_list.push_back(server);
+	//ServerDescription server("localhost", "127.0.0.1", "5555");
+	//server_list.push_back(server);
 	
 	
 //ClientControler::getControl().setNewServer("localhost", "5555");
-	new QListWidgetItem(server.name.c_str(),&list);
+	//new QListWidgetItem(server.name.c_str(),&list);
+		new ServerDescription("localhost", "127.0.0.1", "5555", &list);
 	
 }
 
