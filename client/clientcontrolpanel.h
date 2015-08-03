@@ -8,7 +8,8 @@
 #include <QtWidgets/QPushButton>
 #include <QSize>
 #include <QPoint>
-
+#include <QLabel>
+#include <memory>
 #include <list>
 
 class ServerDescription: public QListWidgetItem{
@@ -30,9 +31,12 @@ class ClientControlPanel : public QWidget
     Q_OBJECT
  	QListWidget list;
 	QPushButton button_add;
-	QPlainTextEdit text_name;
-	QPlainTextEdit text_ip;
-	QPlainTextEdit text_port;
+	QPushButton* button_ok;
+	std::shared_ptr<QWidget> popup;
+	QPlainTextEdit* text_name;
+	QPlainTextEdit* text_ip;
+	QPlainTextEdit* text_port;
+	QLabel *info;
 	static const QSize B_ADD_SIZE=QSize(35,35);
 	static const QPoint B_ADD_POINT=QPoint(0,37);
 	std::list<ServerDescription> server_list;
@@ -44,6 +48,7 @@ signals:
 
 public slots:
 	void add_server();
+	void window_popup();
 	void doubleClicked();
     
 };

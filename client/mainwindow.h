@@ -13,7 +13,10 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 	static const QPoint CON_PAN_POINT=QPoint(300,120);
-    MainControlPanel panel;
+	static const QPoint CLI_PAN_POINT=QPoint(60,0);
+    
+
+	MainControlPanel panel;
     PlaylistWidget list;
 	ClientControlPanel c_panel;
 
