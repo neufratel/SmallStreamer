@@ -7,7 +7,7 @@
 #include "playlistwidget.h"
 #include <QPoint>
 #include "clientcontrolpanel.h"
-
+#include "playlistmanager.h"
 
 class MainWindow : public QMainWindow
 {
@@ -17,9 +17,9 @@ class MainWindow : public QMainWindow
     
 
 	MainControlPanel panel;
-    PlaylistWidget list;
+ //   PlaylistWidget list;
 	ClientControlPanel c_panel;
-
+	PlayListManager playlist_manager;
 	void resizeEvent(QResizeEvent* event);
 public:
     MainWindow(QWidget *parent = 0);

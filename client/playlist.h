@@ -15,11 +15,12 @@
 /*Singleton*/
 class PlayList{
 	 std::vector<AudioFile*> list;
-	 
+	 std::string name; 
 		
 		
 	public:
 		PlayList();
+		PlayList(std::string name_);
 		~PlayList();
 		void addFile(std::string file);
 		//Stream* getCurrentStream();
@@ -31,6 +32,7 @@ class PlayList{
 		unsigned int getCurrentAudioSize();
 		unsigned int getAudioSize(unsigned int il);
 		std::string getAudioFileName(unsigned int i);
+		std::string getPlayListName();
 		bool isPlaying();
 		void setAutoPlay(bool b);
 		AudioFile* at(unsigned int);

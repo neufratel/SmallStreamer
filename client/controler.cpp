@@ -1,35 +1,63 @@
 #include "controler.h"
-
+#include <iterator>   
+using namespace std;
 Controler Controler::controler;
 std::recursive_mutex Controler::mutex;
-Controler::Controler():playlist(nullptr), 
+Controler::Controler(): 
 				current_file_index(0),
 				current_sample_index(0),
+				current_playlist_index(0),
 				play_file(false),
 				auto_play(false){}
 
 void Controler::setPlayList(shared_ptr<PlayList> p){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
-		playlist=p;
 		playlist_container.push_back(p);
 }
 
 void Controler::setPlayList(PlayList *p){
-		playlist=shared_ptr<PlayList>(p);
+		std::lock_guard<std::recursive_mutex> lock(mutex);
+	
 		playlist_container.push_back(shared_ptr<PlayList>(p));
 }
 
+void Controler::removePlayList(unsigned int idx){
+		std::lock_guard<std::recursive_mutex> lock(mutex);
+		if(idx>0){
+			auto it=playlist_container.begin();
+			std::advance(it,idx);
+			playlist_container.erase(it);
+			setCurrentPlayListIndex(current_playlist_index);
+		}
+}
+
 shared_ptr<PlayList>& Controler::getPlayList(){
-		return playlist_container.front();
+		std::lock_guard<std::recursive_mutex> lock(mutex);
+	
+		return getPlayList(current_playlist_index);
+}
+
+shared_ptr<PlayList>& Controler::getPlayList(unsigned int idx){
+		std::lock_guard<std::recursive_mutex> lock(mutex);
+		
+		auto it=playlist_container.begin();
+		std::advance(it,idx);
+
+		return *it;
 }
 
 void Controler::setCurrentPlayListIndex(unsigned int idx){
 	std::lock_guard<std::recursive_mutex> lock(mutex);
-	setCurrentSampleIndex(0);
-	setCurrentFileIndex(0);
+	
+	std::cerr<<"Con:: cpli0"<<std::endl;	
+	current_file_index=0;
+	current_sample_index=0;
+	std::cerr<<"Con:: cpli0"<<std::endl;	
 	current_playlist_index=idx;
-	if(current_playlist_index>playlist_container.size()){
+	std::cerr<<"Controler:: sPLI"<<std::endl;
+	if(current_playlist_index>=playlist_container.size()){
 		current_playlist_index=0;
+		std::cerr<<"Controler:: sPLI if"<<std::endl;
 	}
 }
 
@@ -38,6 +66,13 @@ unsigned int Controler::getCurrentPlayListIndex(){
 		return current_playlist_index;	
 }
 
+std::string Controler::getPlayListName(unsigned int idx){
+		std::lock_guard<std::recursive_mutex> lock(mutex);
+		if(idx<playlist_container.size()){
+			return getPlayList(idx)->getPlayListName();		
+		}
+		return "No such playlist";
+}
 std::string Controler::getAudioFileTime(unsigned int file_, unsigned int sample_){
 	std::lock_guard<std::recursive_mutex> lock(mutex);
 	if(current_file_index<getPlayList()->size()){
@@ -53,6 +88,11 @@ unsigned int Controler::size(){
 			if(getPlayList().get()!=nullptr){
 				return getPlayList() ->size();
 			}
+}
+
+unsigned int Controler::containerSize(){
+			std::lock_guard<std::recursive_mutex> lock(mutex);
+			return playlist_container.size();
 }
 void Controler::play(){
  		std::lock_guard<std::recursive_mutex> lock(mutex);
@@ -91,7 +131,11 @@ int  Controler::getPlayListSize(){
 
 void Controler::setCurrentFileIndex(unsigned int w){ 
 			std::lock_guard<std::recursive_mutex> lock(mutex);
-			getPlayList()->at(current_file_index)->release();
+		if(current_file_index<getPlayList()->size()){
+			if(getPlayList()->at(current_file_index)->isLoaded()){
+				getPlayList()->at(current_file_index)->release();
+			}
+		}
 			current_file_index=w;
 			current_sample_index=0;
 }
@@ -103,7 +147,6 @@ unsigned int Controler::getCurrentFileIndex(){
 
 void Controler::setCurrentSampleIndex(unsigned int w){ 
 			std::lock_guard<std::recursive_mutex> lock(mutex);			
-			std::cerr<<"curr: "<<current_sample_index<<" new: "<<w<<std::endl;
 			current_sample_index=w;
 
 }

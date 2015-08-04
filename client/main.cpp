@@ -28,7 +28,7 @@ int main(int arg, char* argv[]){
 	std::cout<<"dur: "<<file.getSliceDuration()<<std::endl;*/
 //	try{
 		PlayList* playlist=new PlayList();
-		for(int i=2; i<arg; i++){
+		for(int i=1; i<arg; i++){
 			try{
 				playlist->addFile(argv[i]);
 			}catch(std::string e)
@@ -56,8 +56,8 @@ int main(int arg, char* argv[]){
 	      std::cerr << "Usage: client <server> <file mp3>" << std::endl;
 	      return 1;
 	    }*/
-		std::string server(argv[1]);
-		std::string file(argv[2]);
+	//	std::string server(argv[1]);
+	//	std::string file(argv[2]);
 	    //StreamQueue *que = new StreamQueue;
 	    //Player player(que);
 	    //player.openFile(file);
@@ -65,7 +65,7 @@ int main(int arg, char* argv[]){
 		
 	   	Client client( true);
 		std::cout<<"Start"<<std::endl;
-		client.setServer(server);
+	//	client.setServer(server);
 		client.start();
 		
 		ClientControler::getControl().setClient(&client);

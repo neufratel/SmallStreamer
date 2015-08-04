@@ -32,7 +32,7 @@ PlaylistWidget::PlaylistWidget(QWidget *parent) :
 	
 	timer= new QTimer(this);
     connect(timer, SIGNAL (timeout()), this, SLOT (selected()));
-    timer->start(300);
+    timer->start(1000);
 	
 		setAcceptDrops(true);
         setDragEnabled(true);
@@ -50,37 +50,52 @@ PlaylistWidget::PlaylistWidget(QWidget *parent) :
 
 
 void PlaylistWidget::doubleClicked(){
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+	
     qDebug()<<this->currentIndex()<<this->currentItem();
  	Controler::getControl().setCurrentFileIndex(this->currentRow());
 }
 
 void PlaylistWidget::selected(){
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+	while(this->count()>0)
+		this->takeItem(0);
+		for(int i=0; i<Controler::getControl().size(); i++){
+			this->insertItem(i,(Controler::getControl()).getAudioFileName(i).c_str());
+		}
+
 	this->setCurrentRow(Controler::getControl().getCurrentFileIndex());
+	
 }
 
 
     void PlaylistWidget::dragEnterEvent(QDragEnterEvent *event)
     {
-        if (event->mimeData()->hasUrls())
+			std::lock_guard<std::recursive_mutex> lock(mutex);
+
+        
+		if (event->mimeData()->hasUrls())
         {
             event->acceptProposedAction();
         } else {
             QListWidget::dragEnterEvent(event);
         }
     }
-     
+ /*    
     void PlaylistWidget::dragMoveEvent(QDragMoveEvent *event)
     {
+
         if (event->mimeData()->hasUrls())
         {
             event->acceptProposedAction();
         } else {
             QListWidget::dragMoveEvent(event);
         }
-    }
+    }*/
      
     void PlaylistWidget::dropEvent(QDropEvent *event)
     {
+
         if (event->mimeData()->hasUrls())
         {
             QList<QUrl> urls = event->mimeData()->urls();
@@ -97,9 +112,11 @@ void PlaylistWidget::selected(){
 					std::string file_path=url.toString().toStdString();
 					std::string path =file_path.substr(7, file_path.length()-6);
 					try{
-		                	Controler::getControl().addFile(path);
+						std::lock_guard<std::recursive_mutex> lock(mutex);
+
+	                	Controler::getControl().addFile(path);
 							
-							new QListWidgetItem(Controler::getControl().getAudioFileName(Controler::getControl().size()-1).c_str(),this);
+	//						new QListWidgetItem(Controler::getControl().getAudioFileName(Controler::getControl().size()-1).c_str(),this);
                 
                 
         		    }catch(std::string e)
