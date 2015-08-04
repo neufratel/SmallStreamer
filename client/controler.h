@@ -2,9 +2,9 @@
 #define __CONTROLER_H_
 #include <memory>
 #include <mutex>
+#include <list>
 #include "playlist.h"
 #include "stream.h"
-
 	
 
 
@@ -13,14 +13,17 @@ class Controler{
 		static Controler controler;
 		static std::recursive_mutex mutex;
 		shared_ptr<PlayList> playlist;
+		list<shared_ptr<PlayList>> playlist_container;
 		unsigned int current_file_index;
 		unsigned int current_sample_index;
+		unsigned int current_playlist_index;
 		bool play_file;
 		bool auto_play;
 		Controler();	
 		Controler(const Controler&)=delete;
 		Controler& operator=(const Controler&) = delete;
 		std::string convertTimeMsToString(int ms);
+		shared_ptr<PlayList>& getPlayList();
 	
 	public:
 		static Controler& getControl(){
@@ -49,6 +52,8 @@ class Controler{
 		Stream* getCurrentStream();
 		void nextFile();
 		void prevFile();
+		void setCurrentPlayListIndex(unsigned int idx);
+		unsigned int getCurrentPlayListIndex();
 };
 
 #endif

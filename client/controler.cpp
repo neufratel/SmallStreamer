@@ -11,16 +11,36 @@ Controler::Controler():playlist(nullptr),
 void Controler::setPlayList(shared_ptr<PlayList> p){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
 		playlist=p;
+		playlist_container.push_back(p);
 }
 
 void Controler::setPlayList(PlayList *p){
 		playlist=shared_ptr<PlayList>(p);
+		playlist_container.push_back(shared_ptr<PlayList>(p));
+}
 
+shared_ptr<PlayList>& Controler::getPlayList(){
+		return playlist_container.front();
+}
+
+void Controler::setCurrentPlayListIndex(unsigned int idx){
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+	setCurrentSampleIndex(0);
+	setCurrentFileIndex(0);
+	current_playlist_index=idx;
+	if(current_playlist_index>playlist_container.size()){
+		current_playlist_index=0;
+	}
+}
+
+unsigned int Controler::getCurrentPlayListIndex(){
+		std::lock_guard<std::recursive_mutex> lock(mutex);
+		return current_playlist_index;	
 }
 
 std::string Controler::getAudioFileTime(unsigned int file_, unsigned int sample_){
 	std::lock_guard<std::recursive_mutex> lock(mutex);
-	if(current_file_index<playlist->size()){
+	if(current_file_index<getPlayList()->size()){
 		
 
 	}else{
@@ -30,8 +50,8 @@ std::string Controler::getAudioFileTime(unsigned int file_, unsigned int sample_
 }
 unsigned int Controler::size(){
 			std::lock_guard<std::recursive_mutex> lock(mutex);
-			if(playlist.get()!=nullptr){
-				return playlist->size();
+			if(getPlayList().get()!=nullptr){
+				return getPlayList() ->size();
 			}
 }
 void Controler::play(){
@@ -62,8 +82,8 @@ void Controler::setAutoPlay(bool p){
 
 int  Controler::getPlayListSize(){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
-		if(playlist.get()!=nullptr){
-			return playlist->size();
+		if(getPlayList().get()!=nullptr){
+			return getPlayList()->size();
 		}else{
 			return 0;
 		}
@@ -71,7 +91,7 @@ int  Controler::getPlayListSize(){
 
 void Controler::setCurrentFileIndex(unsigned int w){ 
 			std::lock_guard<std::recursive_mutex> lock(mutex);
-			playlist->at(current_file_index)->release();
+			getPlayList()->at(current_file_index)->release();
 			current_file_index=w;
 			current_sample_index=0;
 }
@@ -95,25 +115,25 @@ unsigned int Controler::getCurrentSampleIndex(){
 
 void Controler::nextFile(){
 			std::lock_guard<std::recursive_mutex> lock(mutex);
-			if(playlist->size()!=0&&playlist->size()>getCurrentFileIndex()){
-				playlist->at(current_file_index)->release();
+			if(getPlayList()->size()!=0 && getPlayList()->size()>getCurrentFileIndex()){
+				getPlayList()->at(current_file_index)->release();
 			
 				setCurrentSampleIndex(0);
 				current_file_index++;
 			
-				if(current_file_index>=playlist->size()){
+				if(current_file_index>=getPlayList()->size()){
 						current_file_index=0;
 				}
 			}
 }
 void Controler::prevFile(){
 			std::lock_guard<std::recursive_mutex> lock(mutex);
-			if(playlist->size()!=0){
-				playlist->at(current_file_index)->release();
+			if(getPlayList()->size()!=0){
+				getPlayList()->at(current_file_index)->release();
 				current_file_index--;
 				current_sample_index=0;
-				if(current_file_index>=playlist->size()){
-					current_file_index=playlist->size()-1;
+				if(current_file_index>=getPlayList()->size()){
+					current_file_index=getPlayList()->size()-1;
 				}
 			}
 }
@@ -122,9 +142,9 @@ void Controler::prevFile(){
 unsigned int Controler::getAudioSize(unsigned int f){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
 		unsigned int ret=0;
-		if(playlist.get()!=nullptr){
-			if(f<playlist->size()){
-				ret= playlist->getAudioSize(f);
+		if(getPlayList().get()!=nullptr){
+			if(f<getPlayList()->size()){
+				ret=getPlayList()->getAudioSize(f);
 			}
 		}
 		return ret;
@@ -132,8 +152,8 @@ unsigned int Controler::getAudioSize(unsigned int f){
 
 std::string Controler::getAudioFileName(unsigned int i){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
-		if(playlist.get()!=nullptr&&playlist->size()>i){
-			return playlist->getAudioFileName(i);
+		if(getPlayList().get()!=nullptr && getPlayList()->size()>i){
+			return getPlayList()->getAudioFileName(i);
 		}
 			return "";
 
@@ -142,8 +162,8 @@ std::string Controler::getAudioFileName(unsigned int i){
 
 void Controler::addFile(std::string path){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
-		if(playlist.get()!=nullptr){
-			playlist->addFile(path);
+		if(getPlayList().get()!=nullptr){
+			getPlayList()->addFile(path);
 		}
 }
 
@@ -152,12 +172,12 @@ Stream* Controler::getCurrentStream(){
 			Stream* stream=nullptr;
 			while(stream==nullptr){
 				if(play_file==true){
-					if(getCurrentFileIndex()<playlist->size()){
-						if(getCurrentSampleIndex()<playlist->at(current_file_index)->size()){
-							stream=playlist->at(getCurrentFileIndex())->getStream(getCurrentSampleIndex());
+					if(getCurrentFileIndex()<getPlayList()->size()){
+						if(getCurrentSampleIndex()<getPlayList()->at(current_file_index)->size()){
+							stream=getPlayList()->at(getCurrentFileIndex())->getStream(getCurrentSampleIndex());
 							setCurrentSampleIndex(getCurrentSampleIndex()+1);
 						}else if(auto_play){
-							std::cerr<<"Next"<<current_sample_index<<" "<<playlist->at(current_file_index)->size()<<std::endl;
+							std::cerr<<"Next"<<current_sample_index<<" "<<getPlayList()->at(current_file_index)->size()<<std::endl;
 							nextFile();
 						}else{
 							std::cerr<<"Waiting after file ended"<<std::endl;
@@ -191,14 +211,14 @@ std::string Controler::convertTimeMsToString(int ms){
 		}
 std::string Controler::getCurrentPositionTime(){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
-		if(current_file_index<playlist->size()){
-			return convertTimeMsToString(playlist->at(current_file_index)->getSliceDuration()*current_sample_index);
+		if(current_file_index<getPlayList()->size()){
+			return convertTimeMsToString(getPlayList()->at(current_file_index)->getSliceDuration()*current_sample_index);
 		}
 }
 std::string Controler::getCurrentFileTime(){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
-		if(current_file_index<playlist->size()){
-			return convertTimeMsToString(playlist->at(current_file_index)->getSliceDuration()*playlist->at(current_file_index)->size());
+		if(current_file_index<getPlayList()->size()){
+			return convertTimeMsToString(getPlayList()->at(current_file_index)->getSliceDuration()*getPlayList()->at(current_file_index)->size());
 		}
 		
 			return "00:00";
