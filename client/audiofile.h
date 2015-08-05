@@ -49,6 +49,7 @@ class AudioFile{
 
 			count();
 		}
+		std::string getFullPath(){return (path+name+type);}
 		int size(){ 
 			if(is_loaded){
 				//std::cerr<<"size"<<file_sample.size()<<std::endl;

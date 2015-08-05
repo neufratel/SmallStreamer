@@ -9,6 +9,8 @@
 #include "controler.h"
 #include "clientcontroler.h"
 #include <QtWidgets/QApplication>
+
+#include "keeper.h"
 using boost::asio::ip::tcp;
 
 
@@ -78,6 +80,8 @@ int main(int arg, char* argv[]){
 	  {
 		std::cerr << e.what() << std::endl;
 	  }*/
-  return a.exec();
+  a.exec();
+	Keeper::getInstance().save();
+	return 0;
 }
 
