@@ -1,9 +1,8 @@
 #include "playlist.h"
 #include <string>
 #include <chrono>
-#include <vector>
-#include <set>
 #include <sstream>
+#include <iterator>
 #include <boost/format.hpp>
 #include "stream.h"
 #include "mpgreader.h"
@@ -15,7 +14,7 @@
  
 	std::string PlayList::getAudioFileName(unsigned int i){
 			if(i<list.size()){
-				return list[i]->getName();
+				return at(i)->getName();
 			}else{
 				return "File not exists";
 			}
@@ -41,19 +40,23 @@
 	unsigned int PlayList::getAudioSize(unsigned int idx){
 			unsigned int size=0;
 			if(idx<list.size()){
-				size=list[idx]->size();
+				size=at(idx)->size();
 			}
 			return size;
 	}
 	
-	AudioFile* PlayList::at(unsigned int i){ return list.at(i);}
+AudioFile* PlayList::at(unsigned int i){ 
+		auto it=list.begin();
+		std::advance(it, i);
+		return *it;
+}
 		
 void PlayList::show(){
 			system("clear");
 			std::cout<<std::endl;
 			for(int i=0; i<list.size(); i++){
 				std::cout<<i<<":\t";
-				list[i]->print();
+				at(i)->print();
 			}
 		}
 PlayList::~PlayList(){

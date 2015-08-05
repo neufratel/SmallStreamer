@@ -2,7 +2,7 @@
 #define __PLAYLIST__H
 #include <string>
 #include <chrono>
-#include <vector>
+#include <list>
 #include <set>
 #include <sstream>
 #include <boost/format.hpp>
@@ -14,7 +14,7 @@
 
 /*Singleton*/
 class PlayList{
-	 std::vector<AudioFile*> list;
+	 std::list<AudioFile*> list;
 	 std::string name; 
 		
 		
