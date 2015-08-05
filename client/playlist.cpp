@@ -72,3 +72,12 @@ int PlayList::size(){
 std::string PlayList::getPlayListName(){
 	return name;
 }
+
+void PlayList::removeAudioFile(unsigned int idx){
+	if(idx<list.size()){
+		std::cerr<<"PlayList::removingAudioFile"<<std::endl;
+		auto it=list.begin();
+		std::advance(it, idx);
+		list.erase(it);
+	}
+}

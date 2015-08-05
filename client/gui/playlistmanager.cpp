@@ -10,11 +10,12 @@
 
 PlayListManager::PlayListManager(QWidget *parent) :
     QWidget(parent), list(this), button_add("+",this), button_remove("-", this),
-	playlist(this)
+	button_remove_file("-",this), playlist(this)
 {
 	this->setVisible(true);
 	connect(&button_add, SIGNAL (released()), this, SLOT (add_playlist()));
 	connect(&button_remove, SIGNAL (released()), this, SLOT(remove_playlist()));
+	connect(&button_remove_file, SIGNAL (released()), this, SLOT(remove_file()));
 }
 
 void PlayListManager::resizeEvent(QResizeEvent* event)
@@ -23,7 +24,9 @@ void PlayListManager::resizeEvent(QResizeEvent* event)
 	list.setGeometry(QRect(QPoint(0,0), QSize(80, this->height()-40)));
 	button_add.setGeometry(QRect(QPoint(0,this->height()-40),QSize(40,40)));
 	button_remove.setGeometry(QRect(QPoint(40,this->height()-40),QSize(40,40)));
-	playlist.setGeometry(QRect(QPoint(82, 0),QSize(this->width()-82, this->height())));
+	playlist.setGeometry(QRect(QPoint(82, 0),QSize(this->width()-82, this->height()-40)));
+	button_remove_file.setGeometry(QRect(QPoint(82,playlist.height()),QSize(40,40)));
+
 }
 
 void PlayListManager::remove_playlist(){
@@ -61,5 +64,7 @@ void PlayListManager::create_playlist(){
 	popup->close();
 }
 
-
+void PlayListManager::remove_file(){
+	Controler::getControl().removeAudioFile(list.currentRow());
+}
 

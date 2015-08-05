@@ -36,5 +36,6 @@ class PlayList{
 		bool isPlaying();
 		void setAutoPlay(bool b);
 		AudioFile* at(unsigned int);
+		void removeAudioFile(unsigned int idx);
 };
 #endif

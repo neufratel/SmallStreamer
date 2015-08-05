@@ -20,6 +20,7 @@ class PlayListManager : public QWidget
     Q_OBJECT
     QPushButton button_add;
     QPushButton button_remove;
+	QPushButton button_remove_file;
 	ListWidget list;
 	PlaylistWidget playlist;	
 
@@ -39,6 +40,7 @@ public slots:
 	void add_playlist();
 	void create_playlist();
 	void remove_playlist();
+	void remove_file();
 
 };
 

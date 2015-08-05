@@ -63,9 +63,9 @@ void PlaylistWidget::selected(){
 		for(int i=0; i<Controler::getControl().size(); i++){
 			this->insertItem(i,(Controler::getControl()).getAudioFileName(i).c_str());
 		}
-
-	this->setCurrentRow(Controler::getControl().getCurrentFileIndex());
-	
+	if(this->count()>0){
+		this->setCurrentRow(Controler::getControl().getCurrentFileIndex());
+	}
 }
 
 

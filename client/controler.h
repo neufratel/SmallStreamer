@@ -56,6 +56,7 @@ class Controler{
 		shared_ptr<PlayList>& getPlayList(unsigned int idx);
 		unsigned int containerSize();
 		void removePlayList(unsigned int idx);
+		void removeAudioFile(unsigned int idx);
 
 };
 
