@@ -11,18 +11,19 @@
 #include <QLabel>
 #include <memory>
 #include <list>
-
-class ServerDescription: public QListWidgetItem{
+#include "clientcontroler.h"
+class ServerDescriptionItem: public ServerDescription, public QListWidgetItem{
 	public:
-		std::string ip;
-		std::string port;
-		std::string name;
-		ServerDescription(std::string n, std::string i, std::string p, QListWidget* widget):
-			QListWidgetItem(n.c_str(),widget), name(n), ip(i), port(p)		
+		ServerDescriptionItem(std::string n, std::string i, std::string p, QListWidget* widget):
+			QListWidgetItem(n.c_str(), widget), ServerDescription(n , i ,p)
 		{
 			
 		}
-		ServerDescription():name("default"), ip("localhost"), port("5555"){}		
+		ServerDescriptionItem(ServerDescription* sd, QListWidget* widget) 
+			:QListWidgetItem(sd->name.c_str(), widget),
+			 ServerDescription(sd->name, sd->ip, sd->port){
+		}
+		ServerDescriptionItem(): ServerDescription("default","localhost","5555"){}		
 
 };
 
@@ -30,7 +31,9 @@ class ClientControlPanel : public QWidget
 {
     Q_OBJECT
  	QListWidget list;
+	QTimer timer;
 	QPushButton button_add;
+	QPushButton button_remove;
 	QPushButton* button_ok;
 	std::shared_ptr<QWidget> popup;
 	QPlainTextEdit* text_name;
@@ -50,7 +53,8 @@ public slots:
 	void add_server();
 	void window_popup();
 	void doubleClicked();
-    
+ 	void selected();
+	void remove_server(); 
 };
 
 #endif // __CLIENT_CONTROL_PANEL_H__

@@ -29,7 +29,13 @@
 		}	
 
 		void PlayList::addFile(std::string file){
-			list.push_back(new AudioFile(file));
+			try{
+				list.push_back(new AudioFile(file));
+			}catch(std::string e)
+	 		{
+			std::cerr <<"PlayList::addFile(std::string):"<< e << std::endl;
+	  		}	
+	
 		}
 	
 	unsigned int PlayList::getAudioSize(unsigned int idx){
