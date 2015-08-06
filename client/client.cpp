@@ -21,7 +21,7 @@ using boost::asio::ip::tcp;
 		
 	bool Client::connectToServer( std::string server, std::string port){
 
-		std::cerr<<std::string("Client: connecting to: ")+server+":"+port<<std::endl;
+		//std::cerr<<std::string("Client: connecting to: ")+server+":"+port<<std::endl;
 		tcp::resolver::query query(server, port);
 		endpoint_iterator = resolver.resolve(query);
 		
@@ -33,7 +33,7 @@ using boost::asio::ip::tcp;
 			return true;
 		
 		}catch (std::exception& e){
-			std::cerr << e.what() << std::endl;
+	//		std::cerr << e.what() << std::endl;
 			if(log_conn_failed){
 				Logger::getInstance().msg(std::string("Client: connection failed: ")+e.what());
 				log_conn_failed=false;
@@ -61,7 +61,25 @@ using boost::asio::ip::tcp;
 						+ error.category().name()+ std::to_string(error.value()) );
 				 return;
 			}
-			std::this_thread::sleep_for(std::chrono::microseconds(stream->getStreamDurationUS()-1000));
+
+			/** Waiting for server response*/
+	//*		std::cerr<<"W sockecie"<< socket.available()<<std::endl;
+		/*		while(socket.available()<Stream::header){
+					std::this_thread::sleep_for(std::chrono::microseconds(100));
+					std::cerr<<"IS open "<<socket.is_open()<<std::endl;
+				}*/
+			std::shared_ptr<unsigned char> stream_head=std::shared_ptr<unsigned char>(new unsigned char[Stream::header], [](unsigned char *p){ delete[] p; } );
+            boost::system::error_code ignored_error;
+            size_t len=boost::asio::read(socket,boost::asio::buffer(stream_head.get(), Stream::header), ignored_error);
+			/*Waiting ended*/
+
+
+			if(ignored_error!=0){
+				 Logger::getInstance().msg(std::string("Client: reading response error: ")
+						+ error.category().name()+ std::to_string(error.value()) );
+				 return;
+			}
+	//		std::this_thread::sleep_for(std::chrono::microseconds(stream->getStreamDurationUS()-1000));
 		}
 		socket.close();
 		return;

@@ -28,6 +28,7 @@ class ClientControler{
 		ClientControler();	
 		ClientControler(const ClientControler&)=delete;
 		ClientControler& operator=(const ClientControler&) = delete;
+		void setNewServer(ServerDescription* sd);
 
 	public:
 		static ClientControler& getControl(){
@@ -35,7 +36,6 @@ class ClientControler{
 			return controler;
 		}
 		void setClient(Client * cl_);
-		void setNewServer(std::string server, std::string port);
 		void streamData(bool stream);
 		void setCurrentServerIndex(unsigned int idx);
 		unsigned int getCurrentServerIndex();

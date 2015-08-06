@@ -13,11 +13,11 @@ void ClientControler::setClient(Client * cl_){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
 		client=cl_;
 }
-void ClientControler::setNewServer(std::string server, std::string port){
+void ClientControler::setNewServer(ServerDescription* sd){
 	std::lock_guard<std::recursive_mutex> lock(mutex);
 	if(client!=nullptr){	
-		client->setServer(server);
-		client->setPort(port);
+		client->setServer(sd->ip);
+		client->setPort(sd->port);
 		client->setMaintainConnection(false);
 	}else{
 		std::cerr<<"Client not initialized inside controler try \"setClient(\""<<std::endl;
@@ -32,7 +32,7 @@ void ClientControler::setCurrentServerIndex(unsigned int idx){
 	std::lock_guard<std::recursive_mutex> lock(mutex);
 	if(idx<server_list.size()){
 		current_server_index=idx;
-		//TODO changing server for client 
+		setNewServer(getServerDescription(current_server_index));
 	}else{
 		setCurrentServerIndex(idx-1);
 	}
