@@ -8,12 +8,20 @@ class StreamQueue{
 	std::queue<Stream> que;
 	std::mutex mutex;
 	std::condition_variable condition;
+	std::condition_variable condition_full;
+	
 	bool not_empty;
+	bool not_full;
     public:
-	StreamQueue(): not_empty(false){};
+	StreamQueue(): not_empty(false), not_full(true) {};
 	void push(Stream s){
 		std::unique_lock<std::mutex> locker(mutex);
+		condition_full.wait(locker, [this]{return this->not_full;});
 		que.push(s);
+	//	std::cout<<"Quele :"<<que.size()<<std::endl;
+		if(que.size()>=1){
+			not_full=false;
+		}
 		not_empty=true;
 		condition.notify_one();
 	}
@@ -33,6 +41,16 @@ class StreamQueue{
 		if(que.size()<=0){
 			not_empty=false;
 		}
+		if(que.size()>=1){
+			not_full=false;
+			std::cerr<<"Pop="<<std::endl;
+		}else{
+			not_full=true;
+			condition_full.notify_one();
+		
+		}
+		//std::cout<<"Quele :pop(): "<<que.size()<<std::endl;
+	
 		locker.unlock();
 	}
 	size_t size(){

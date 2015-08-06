@@ -24,7 +24,7 @@
 				return global_volume;
 		}
 		void Stream::print(){
-			std::cout<<"V: "<<(int)volume<<" CH: "<<(int)channels<<" BRT: "<<(int)byte_rate<<" R: "<<(int)rate<<" size: "<<(int)buffer_size<<std::endl;
+			std::cout<<"\rV: "<<(int)volume<<" CH: "<<(int)channels<<" BRT: "<<(int)byte_rate<<" R: "<<(int)rate<<" size: "<<(int)buffer_size<<std::flush;
 		}
 	//	Stream::Stream(unsigned char*b, size_t len): buf(b), buffer_size(len){};
 	//	Stream::Stream(){};
