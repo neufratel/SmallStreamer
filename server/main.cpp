@@ -26,11 +26,14 @@ int main(int ar, char* arg[] )
 	player.start_sec();
 
 	Server server(que);
-	//	server.waitConnection();
-	//	server.recieveStream();
+		if(ar==2){
+			server.setPort(std::string(arg[1]));
+		}
+	
 	server.start();
-	player.joinMainThread();
-	//server.connect	
+		
+	server.joinMainThread();
+	std::cout<<"Server joined"<<std::endl;
   }
   catch (std::exception& e)
   {

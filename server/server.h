@@ -21,10 +21,10 @@ class Server: public Runnable{
 
 	shared_ptr<tcp::acceptor> acceptor;
 	shared_ptr<tcp::socket> socket;
-	boost::system::error_code ec;
+	boost::system::error_code error;
 	StreamQueue* queue;
-	int timeout_time;
 	unsigned int port;
+	
 		
 	public:	
 		
