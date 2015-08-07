@@ -4,9 +4,14 @@
 
 
 ClientControlPanel::ClientControlPanel(QWidget *parent) :
-    QWidget(parent), list(this), button_add("+", this),button_remove("-", this), timer(this)
+    QWidget(parent), list(this), button_add( this),button_remove(this), timer(this)
 {
+    this->setStyleSheet("border-image: url(gui/front.png) 5 5 5 5;");	
 	this->show();
+
+	button_add.setStyleSheet("border-image: url(gui/server_add.png) 1 1 1 1;");
+	button_remove.setStyleSheet("border-image: url(gui/server_rm.png) 1 1 1 1;");
+
 	connect(&button_add, SIGNAL (released()), this, SLOT (window_popup()));
 	connect(&button_remove, SIGNAL (released()), this, SLOT (remove_server()));
 	connect(&list, SIGNAL ( itemDoubleClicked(QListWidgetItem*)), this, SLOT (doubleClicked()));
@@ -17,8 +22,8 @@ ClientControlPanel::ClientControlPanel(QWidget *parent) :
 }
 
 void ClientControlPanel::resizeEvent(QResizeEvent* event){
-	list.setGeometry(QRect(QPoint(0, 0), QSize(this->width(), this->height()-50)));
-	button_add.setGeometry(QRect(QPoint(0, this->height())-B_ADD_POINT, B_ADD_SIZE));
+	list.setGeometry(QRect(QPoint(4, 0), QSize(this->width(), this->height()-40)));
+	button_add.setGeometry(QRect(QPoint(4, this->height())-B_ADD_POINT, B_ADD_SIZE));
 	button_remove.setGeometry(QRect(QPoint(button_add.width(), this->height())-B_ADD_POINT, B_ADD_SIZE));
 }
 

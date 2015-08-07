@@ -15,7 +15,7 @@ class MainControlPanel : public QWidget
     Q_OBJECT
     QLabel * song_name;
     QLabel * song_time;
-
+ //   QPushButton *button_play;
 	Button *button_play;
     QPushButton *button_stop;
     QPushButton *button_next;
@@ -40,19 +40,17 @@ class MainControlPanel : public QWidget
 	static const QSize CONTROL_SIZE=QSize(300, 120);
 	static const QPoint CONTROL_POINT=QPoint(0, 0);
 
-	static const QSize B_PLAY_SIZE=QSize(60, 60);
-	static const QPoint B_PLAY_POINT=QPoint(5, 60);
+	static const QSize B_PLAY_SIZE=QSize(45, 50);
+	static const QPoint B_PLAY_POINT=QPoint(10, 60);
 	
-	static const QSize B_STOP_SIZE=QSize(40, 40);
-	static const QPoint B_STOP_POINT=QPoint(70, 75);
+	static const QSize B_STOP_SIZE=QSize(30, 30);
+	static const QPoint B_STOP_POINT=QPoint(70, 80);
 
-	
+	static const QSize B_NEXT_SIZE=QSize(30, 30);
+	static const QPoint B_NEXT_POINT=QPoint(140, 80);
 
-	static const QSize B_PREV_SIZE=QSize(40, 40);
-	static const QPoint B_PREV_POINT=QPoint(115, 75);
-
-	static const QSize B_NEXT_SIZE=QSize(40, 40);
-	static const QPoint B_NEXT_POINT=QPoint(160, 75);
+	static const QSize B_PREV_SIZE=QSize(30, 30);
+	static const QPoint B_PREV_POINT=QPoint(105, 80);
 
 	static const QSize VOLUME_SIZE=QSize(100, 20);
 	static const QPoint VOLUME_POINT=QPoint(120, 30);	

@@ -5,10 +5,10 @@
 #include <QPoint>
 #include <QRect>
 #include <QFont>
-
+#include "button.h"
 
 MainControlPanel::MainControlPanel(QWidget *parent) :
-    QWidget(parent), playing(false), progress_value(0), button_play(new QPushButton("P",this)),
+    QWidget(parent), playing(false), progress_value(0), button_play(new Button(this)),
 	progress(new QSlider(Qt::Horizontal,this)), 
 	volume(new QSlider(Qt::Horizontal,this)),
 	song_time(new QLabel("00:00/00:00", this)),
@@ -21,6 +21,7 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
    this->setVisible(true);
 
 //    button_play=new QPushButton("P", this);
+	this->setStyleSheet("border-image: url(gui/clean.png) 0 0 0 0;");
     QPoint point(30,30);
 
   
@@ -31,24 +32,25 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
     connect(button_play_timer, SIGNAL (timeout()), this, SLOT (refreshButtonPlay()));
     button_play_timer->start(300);
 
-    button_stop=new QPushButton("||", this);
+    button_stop=new QPushButton( this);
     button_stop->setGeometry(QRect(B_STOP_POINT, B_STOP_SIZE));
     //connect(button_next, SIGNAL (released()), this, SLOT (next()));
     button_stop->setVisible(true);
 
 
-    button_next=new QPushButton(">>", this);
+    button_next=new QPushButton(this);
     button_next->setGeometry(QRect(B_NEXT_POINT, B_NEXT_SIZE));
     connect(button_next, SIGNAL (released()), this, SLOT (next()));
     button_next->setVisible(true);
 
-    button_pierv=new QPushButton("<<", this);
+    button_pierv=new QPushButton( this);
     button_pierv->setGeometry(QRect(B_PREV_POINT, B_PREV_SIZE));
     connect(button_pierv, SIGNAL (released()), this, SLOT (pierv()));
     button_pierv->setVisible(true);
 
    
     progress->setVisible(true);
+	progress->setStyleSheet("QSlider::handle {image: url(gui/handle.png);};");
     connect(progress, SIGNAL (sliderMoved(int)), this, SLOT (changeProgress()));
     a=0;
     timer= new QTimer(this);
@@ -61,9 +63,12 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
     volume->show();
 	
 	auto_play_box = new QCheckBox(this);
-	auto_play_box->setGeometry(10, 10, 20, 20);
+	auto_play_box->setStyleSheet("QCheckBox::indicator:unchecked {image: url(gui/check_p.png) 5 5 5 5;} QCheckBox::indicator:checked {image: url(gui/check_s.png) 5 5 5 5;}");
+	auto_play_box->setGeometry(10, 10, 30, 30);
 	auto_play_box->setText("AutoPlay");
 	auto_play_box->setVisible(true);
+	
+	
 	connect(auto_play_box, SIGNAL (stateChanged(int)), this, SLOT(autoplay()));
 	
 	song_name->setFont(QFont( "lucida", 12, QFont::Bold, true ));
@@ -74,7 +79,9 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
 	song_time->setFont(QFont( "lucida", 12, QFont::Bold, true ));
 	//song_time->setGeometry(QRect(NAME_POINT, NAME_SIZE));
 	song_time->setVisible(true);
-
+	button_next->setStyleSheet("border-image: url(gui/next.png) 0 0 0 0;");
+	button_pierv->setStyleSheet("border-image: url(gui/prev.png) 0 0 0 0;");
+	button_stop->setStyleSheet("border-image: url(gui/stop.png) 0 0 0 0;");
 }
 
 void MainControlPanel::autoplay(){
@@ -86,12 +93,14 @@ void MainControlPanel::play(){
 	if(playing==true){
 		qDebug()<<"Stoping...";
 		Controler::getControl().stop();
-		button_play->setText("P");
+		button_play->setStyleSheet("border-image: url(gui/play.png) 0 0 0 0;");
+		//button_play->setText("P");
 		playing=false;
 	}else{
 		qDebug()<<"Playing...";
 	 	Controler::getControl().play();
-		button_play->setText("S");
+		button_play->setStyleSheet("border-image: url(gui/pause.png) 0 0 0 0;");
+		//button_play->setText("S");
 		playing=true;
 	}
 }
@@ -132,9 +141,9 @@ void MainControlPanel::setVolume(){
 void MainControlPanel::refreshButtonPlay(){
 	playing=Controler::getControl().isPlaying();
 	if(playing){
-		button_play->setText("S");
+	//	button_play->setText("S");
 	}else{
-		button_play->setText("P");
+	//	button_play->setText("P");
 	}
 }
 

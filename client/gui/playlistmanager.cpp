@@ -9,10 +9,16 @@
 #include "playlist.h"
 
 PlayListManager::PlayListManager(QWidget *parent) :
-    QWidget(parent), list(this), button_add("+",this), button_remove("-", this),
-	button_remove_file("-",this), playlist(this)
+    QWidget(parent), list(this), button_add(this), button_remove(this),
+	button_remove_file(this), playlist(this)
 {
+	this->setStyleSheet("border-image: url(gui/front.png) 0 0 0 0;");
 	this->setVisible(true);
+
+	button_add.setStyleSheet("border-image: url(gui/add_p.png) 1 1 1 1;");
+	button_remove.setStyleSheet("border-image: url(gui/rm_p.png) 1 1 1 1;");
+	button_remove_file.setStyleSheet("border-image: url(gui/rm_s.png) 1 1 1 1;");
+	list.setStyleSheet("border-image: url(gui/front.png) 1 1 1 1;");
 	connect(&button_add, SIGNAL (released()), this, SLOT (add_playlist()));
 	connect(&button_remove, SIGNAL (released()), this, SLOT(remove_playlist()));
 	connect(&button_remove_file, SIGNAL (released()), this, SLOT(remove_file()));
@@ -22,10 +28,10 @@ void PlayListManager::resizeEvent(QResizeEvent* event)
 {
 	QWidget::resizeEvent(event);
 	list.setGeometry(QRect(QPoint(0,0), QSize(80, this->height()-40)));
-	button_add.setGeometry(QRect(QPoint(0,this->height()-40),QSize(40,40)));
-	button_remove.setGeometry(QRect(QPoint(40,this->height()-40),QSize(40,40)));
-	playlist.setGeometry(QRect(QPoint(82, 0),QSize(this->width()-82, this->height()-40)));
-	button_remove_file.setGeometry(QRect(QPoint(82,playlist.height()),QSize(40,40)));
+	button_add.setGeometry(QRect(QPoint(0,this->height()-40),QSize(30,30)));
+	button_remove.setGeometry(QRect(QPoint(40,this->height()-40),QSize(30,30)));
+	playlist.setGeometry(QRect(QPoint(84, 0),QSize(this->width()-84, this->height()-40)));
+	button_remove_file.setGeometry(QRect(QPoint(84,playlist.height()),QSize(30,30)));
 
 }
 
