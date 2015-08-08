@@ -29,6 +29,7 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
     button_play.setGeometry(QRect(B_PLAY_POINT, B_PLAY_SIZE));
     connect(&button_play, SIGNAL (released()), this, SLOT (play()));
     connect(&button_play, SIGNAL (pressed()), this, SLOT (play_pressed()));
+    button_play.setStyleSheet("border-image: url(graphics/pause.png) 0 0 0 0;");
     button_play.setVisible(true);
     
 
@@ -39,6 +40,7 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
     button_stop.setGeometry(QRect(B_STOP_POINT, B_STOP_SIZE));
     connect(&button_stop, SIGNAL (released()), this, SLOT (stop()));
     connect(&button_stop, SIGNAL (pressed()), this, SLOT (stop_pressed()));
+    button_stop.setStyleSheet("border-image: url(graphics/stop.png) 0 0 0 0;");
     button_stop.setVisible(true);
 
 
@@ -46,12 +48,14 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
     button_next.setGeometry(QRect(B_NEXT_POINT, B_NEXT_SIZE));
     connect(&button_next, SIGNAL (released()), this, SLOT (next()));
     connect(&button_next, SIGNAL (pressed()), this, SLOT (next_pressed()));
+    button_next.setStyleSheet("border-image: url(graphics/next.png) 0 0 0 0;");
     button_next.setVisible(true);
 
   
     button_pierv.setGeometry(QRect(B_PREV_POINT, B_PREV_SIZE));
     connect(&button_pierv, SIGNAL (released()), this, SLOT (pierv()));
     connect(&button_pierv, SIGNAL (pressed()), this, SLOT (pierv_pressed()));
+    button_pierv.setStyleSheet("border-image: url(graphics/prev.png) 0 0 0 0;");
     button_pierv.setVisible(true);
 
    
@@ -66,31 +70,31 @@ MainControlPanel::MainControlPanel(QWidget *parent) :
   
  
     connect(&volume, SIGNAL (valueChanged(int)), this, SLOT (setVolume()));
-    volume.show();
     volume.setStyleSheet("QSlider::handle {image: url(graphics/handle.png);};");
+    volume.show();
     
 	
 	
-	auto_play_box.setStyleSheet("QCheckBox::indicator:unchecked {image: url(graphics/check_p.png) 0 0 0 0;} QCheckBox::indicator:checked {image: url(graphics/check_s.png) 0 0 0 0;}");
-	auto_play_box.setGeometry(10, 10, 20, 20);
+	
+	auto_play_box.setGeometry(10, 10, 80, 15);
 	auto_play_box.setText("AutoPlay");
+        connect(&auto_play_box, SIGNAL (stateChanged(int)), this, SLOT(autoplay()));
+	auto_play_box.setStyleSheet("QCheckBox::indicator:unchecked {image: url(graphics/check_s.png) 0 0 0 0;} QCheckBox::indicator:checked {image: url(graphics/check_p.png) 0 0 0 0;}");
 	auto_play_box.setVisible(true);
 	
 	
-	connect(&auto_play_box, SIGNAL (stateChanged(int)), this, SLOT(autoplay()));
+	
 	
 	song_name.setFont(QFont( "lucida", 12, QFont::Bold, true ));
-	//song_name.setGeometry(QRect(NAME_POINT, NAME_SIZE));
 	song_name.setVisible(true);
 	
-	//song_time = new QLabel("00:00/00:00", this);
+	
 	song_time.setFont(QFont( "lucida", 12, QFont::Bold, true ));
-	//song_time.setGeometry(QRect(NAME_POINT, NAME_SIZE));
 	song_time.setVisible(true);
-	button_play.setStyleSheet("border-image: url(graphics/pause.png) 0 0 0 0;");
-	button_next.setStyleSheet("border-image: url(graphics/next.png) 0 0 0 0;");
-	button_pierv.setStyleSheet("border-image: url(graphics/prev.png) 0 0 0 0;");
-	button_stop.setStyleSheet("border-image: url(graphics/stop.png) 0 0 0 0;");
+	
+	
+	
+	
 }
 
 void MainControlPanel::autoplay(){
