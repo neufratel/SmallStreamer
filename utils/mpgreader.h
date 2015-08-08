@@ -11,7 +11,7 @@ class MpgReader{
 		static const short BITS=8;
 		mpg123_handle *mh;
 		std::shared_ptr<unsigned char> buffer;
-	    static const size_t buffer_size=32768;
+	    static const size_t buffer_size=16383;
 		size_t done;
 	    	int err;
 		int channels, encoding;

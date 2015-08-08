@@ -9,7 +9,7 @@ class StreamQueue{
 	std::mutex mutex;
 	std::condition_variable condition;
 	std::condition_variable condition_full;
-	
+	static const int MAX_SIZE=2;
 	bool not_empty;
 	bool not_full;
     public:
@@ -19,7 +19,7 @@ class StreamQueue{
 		condition_full.wait(locker, [this]{return this->not_full;});
 		que.push(s);
 	//	std::cout<<"Quele :"<<que.size()<<std::endl;
-		if(que.size()>=1){
+		if(que.size()>=MAX_SIZE){
 			not_full=false;
 		}
 		not_empty=true;
@@ -41,7 +41,7 @@ class StreamQueue{
 		if(que.size()<=0){
 			not_empty=false;
 		}
-		if(que.size()>=1){
+		if(que.size()>=MAX_SIZE){
 			not_full=false;
 			std::cerr<<"Pop="<<std::endl;
 		}else{
