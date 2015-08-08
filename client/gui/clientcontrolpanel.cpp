@@ -6,11 +6,11 @@
 ClientControlPanel::ClientControlPanel(QWidget *parent) :
     QWidget(parent), list(this), button_add( this),button_remove(this), timer(this)
 {
-    this->setStyleSheet("border-image: url(gui/front.png) 5 5 5 5;");	
+    this->setStyleSheet("border-image: url(graphics/front.png) 5 5 5 5;");	
 	this->show();
 
-	button_add.setStyleSheet("border-image: url(gui/server_add.png) 1 1 1 1;");
-	button_remove.setStyleSheet("border-image: url(gui/server_rm.png) 1 1 1 1;");
+	button_add.setStyleSheet("border-image: url(graphics/server_add.png) 1 1 1 1;");
+	button_remove.setStyleSheet("border-image: url(graphics/server_rm.png) 1 1 1 1;");
 
 	connect(&button_add, SIGNAL (released()), this, SLOT (window_popup()));
 	connect(&button_remove, SIGNAL (released()), this, SLOT (remove_server()));

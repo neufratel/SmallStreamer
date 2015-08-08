@@ -9,22 +9,21 @@
 #include <QTimer>
 #include <QSize>
 #include <QLabel>
-#include "button.h"
 class MainControlPanel : public QWidget
 {
     Q_OBJECT
-    QLabel * song_name;
-    QLabel * song_time;
+    QLabel  song_name;
+    QLabel  song_time;
 
-	Button *button_play;
-    QPushButton *button_stop;
-    QPushButton *button_next;
-    QPushButton *button_pierv;
-    QSlider *progress;
-    QSlider *volume;
-    QTimer *timer;
-	QTimer *button_play_timer;
-	QCheckBox* auto_play_box;
+	QPushButton button_play;
+    QPushButton button_stop;
+    QPushButton button_next;
+    QPushButton button_pierv;
+    QSlider progress;
+    QSlider volume;
+    QTimer timer;
+	QTimer button_play_timer;
+	QCheckBox auto_play_box;
     int a;
 	bool playing;
 	short progress_value;
@@ -68,8 +67,13 @@ signals:
 
 public slots:
     void play();
+    void play_pressed();
     void next();
+    void next_pressed();
     void pierv();
+    void pierv_pressed();
+    void stop();
+    void stop_pressed();
     void setProgress();
     void changeProgress();
     void setVolume();

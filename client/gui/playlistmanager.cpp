@@ -12,13 +12,13 @@ PlayListManager::PlayListManager(QWidget *parent) :
     QWidget(parent), list(this), button_add(this), button_remove(this),
 	button_remove_file(this), playlist(this)
 {
-	this->setStyleSheet("border-image: url(gui/front.png) 0 0 0 0;");
+	this->setStyleSheet("border-image: url(graphics/front.png) 0 0 0 0;");
 	this->setVisible(true);
 
-	button_add.setStyleSheet("border-image: url(gui/add_p.png) 1 1 1 1;");
-	button_remove.setStyleSheet("border-image: url(gui/rm_p.png) 1 1 1 1;");
-	button_remove_file.setStyleSheet("border-image: url(gui/rm_s.png) 1 1 1 1;");
-	list.setStyleSheet("border-image: url(gui/front.png) 1 1 1 1;");
+	button_add.setStyleSheet("border-image: url(graphics/add_p.png) 1 1 1 1;");
+	button_remove.setStyleSheet("border-image: url(graphics/rm_p.png) 1 1 1 1;");
+	button_remove_file.setStyleSheet("border-image: url(graphics/rm_s.png) 1 1 1 1;");
+	list.setStyleSheet("border-image: url(graphics/front.png) 1 1 1 1;");
 	connect(&button_add, SIGNAL (released()), this, SLOT (add_playlist()));
 	connect(&button_remove, SIGNAL (released()), this, SLOT(remove_playlist()));
 	connect(&button_remove_file, SIGNAL (released()), this, SLOT(remove_file()));
