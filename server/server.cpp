@@ -65,13 +65,13 @@ void Server::recieveStream(){
 				Logger::getInstance().msg(std::string("Server::recivingStream::error while reading head"));
 				return;
 			}
-			Stream frame(stream_head.get());
+			Stream* frame= new Stream(stream_head.get());
 			
 
 		/** Reciving data of frame*/
-			std::shared_ptr<unsigned char> data=std::shared_ptr<unsigned char>(new unsigned char[frame.getBufferSize()], [](unsigned char *p){ delete[] p; } );
+			std::shared_ptr<unsigned char> data=std::shared_ptr<unsigned char>(new unsigned char[frame->getBufferSize()], [](unsigned char *p){ delete[] p; } );
 			
-			boost::asio::read(*socket,boost::asio::buffer(data.get(), frame.getBufferSize()), error);
+			boost::asio::read(*socket,boost::asio::buffer(data.get(), frame->getBufferSize()), error);
 			
 			if(error){
 				std::cerr<<error<<std::endl;
@@ -79,8 +79,8 @@ void Server::recieveStream(){
 				return;
 			}
 			
-			frame.setData(data.get());
-			frame.print();
+			frame->setData(data.get());
+			frame->print();
 			queue->push(frame);
 			
 		/**Sending back header for syncronization with client */

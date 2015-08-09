@@ -47,29 +47,28 @@ void Player::run_sec(){
 	witch is playing Stream form StreamQueue*/
 void Player::run(){
 		Logger::getInstance().msg(std::string("Player: running player "));
+	//	Stream stream;	
 		while(run_)
-		if(true){//queue->size()>0){
-			if(rate!=queue->front().getRate() || byte_rate!= queue->front().getByteRate() || channels!=queue->front().getChannels()){
-				rate=queue->front().getRate();
-				byte_rate= queue->front().getByteRate();
-				channels=queue->front().getChannels();
-				//if(dev_is_open){
-				//	ao_close(dev);			
-				//}
+		if(true){
+			std::shared_ptr<Stream> stream=queue->front();
+			queue->pop();
+
+			if(rate!=stream->getRate() || byte_rate!= stream->getByteRate() || channels!=stream->getChannels()){
+				rate=stream->getRate();
+				byte_rate= stream->getByteRate();
+				channels=stream->getChannels();
+				
 				format.bits = byte_rate;
 				format.rate = rate;
 				format.channels = channels;
 				format.byte_format = AO_FMT_NATIVE;
 				format.matrix = 0;
-				//dev = ao_open_live(driver, &format, NULL);
 					dev=shared_ptr<ao_device>(ao_open_live(driver,&format, NULL), [](ao_device *d){ ao_close(d);});
-				//dev_is_open=true;
 			}
-			if(queue->front().getVolume()!=volume){
-				volume=queue->front().getVolume();	
+			if(stream->getVolume()!=volume){
+				volume=stream->getVolume();	
 			}
-        		play(queue->front().getBuffer(),queue->front().getBufferSize());
-			queue->pop();
+        		play(stream->getBuffer(),stream->getBufferSize());
 		}		
 		
 	}
