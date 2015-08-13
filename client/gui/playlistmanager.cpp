@@ -18,7 +18,7 @@ PlayListManager::PlayListManager(QWidget *parent) :
 	button_add.setStyleSheet("border-image: url(graphics/add_p.png) 1 1 1 1;");
 	button_remove.setStyleSheet("border-image: url(graphics/rm_p.png) 1 1 1 1;");
 	button_remove_file.setStyleSheet("border-image: url(graphics/rm_s.png) 1 1 1 1;");
-	list.setStyleSheet("border-image: url(graphics/front.png) 1 1 1 1;");
+//	list.setStyleSheet("border-image: url(graphics/front.png) 1 1 1 1; background-attachment: scroll;QSlider::groove:horizontal { border: 1px solid #999999; height: 8px; background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #FFFFFF, stop:1 #c4c4c4); margin: 2px 0; } QSlider::handle:horizontal { background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f); border: 1px solid #000000; width: 18px; margin: -2px 0; border-radius: 3px; }");
 	connect(&button_add, SIGNAL (released()), this, SLOT (add_playlist()));
 	connect(&button_remove, SIGNAL (released()), this, SLOT(remove_playlist()));
 	connect(&button_remove_file, SIGNAL (released()), this, SLOT(remove_file()));

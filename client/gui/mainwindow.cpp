@@ -4,7 +4,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), panel(this), c_panel(this), playlist_manager(this)
 {
     this->setGeometry(50,50, 330, 500);
-	this->setStyleSheet("border-image: url(graphics/back.png) 0 0 0 0;");
+    this->setStyleSheet("border-image: url(graphics/back.png) 0 0 0 0;");
 }
 
 MainWindow::~MainWindow()

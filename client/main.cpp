@@ -9,12 +9,23 @@
 #include "controler.h"
 #include "clientcontroler.h"
 #include <QtWidgets/QApplication>
-
 #include "keeper.h"
+
+#include <sys/file.h>
+#include <errno.h>
 using boost::asio::ip::tcp;
 
 
 int main(int arg, char* argv[]){
+
+int pid_file = open("/var/run/SmallStreamer.pid", O_CREAT | O_RDWR, 0666);
+int rc = flock(pid_file, LOCK_EX | LOCK_NB);
+if(rc) {
+    if(EWOULDBLOCK == errno)
+       std::cout<<"another instance is running"<<std::endl;
+}
+else {
+
 	QApplication a(arg, argv);
 		
 
@@ -35,6 +46,7 @@ int main(int arg, char* argv[]){
 		client.stop();
 	//	client.joinMainThread(); TODO This not working because client sleep on getSample() from Controler class and later it waits on his own loop 
 	Keeper::getInstance().save();
+}
 	return 0;
 }
 

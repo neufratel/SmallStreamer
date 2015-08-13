@@ -39,12 +39,13 @@ void ListWidget::doubleClicked(){
 
 void ListWidget::selected(){
 	std::lock_guard<std::recursive_mutex> lock(mutex);
-	this->clear();
+//	this->clear();
 		for(int i=0; i<Controler::getControl().containerSize(); i++){
+			this->takeItem(i);
 			this->insertItem(i,(Controler::getControl()).getPlayListName(i).c_str());
 		}
 		this->item(Controler::getControl().getCurrentPlayListIndex())->setBackgroundColor(Qt::red);
-		this->setCurrentRow(Controler::getControl().getCurrentPlayListIndex());
+	//	this->setCurrentRow(Controler::getControl().getCurrentPlayListIndex());
 }
 int ListWidget::current(){
 	return this->currentRow();
