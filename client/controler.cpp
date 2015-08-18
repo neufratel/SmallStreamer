@@ -129,6 +129,15 @@ int  Controler::getPlayListSize(){
 		}
 }
 
+int  Controler::getPlayListSize(unsigned int idx){
+		std::lock_guard<std::recursive_mutex> lock(mutex);
+		if(idx < playlist_container.size()){
+			return getPlayList(idx)->size();
+		}else{
+			return 0;
+		}
+}
+
 void Controler::setCurrentFileIndex(unsigned int idx){ 
 		std::lock_guard<std::recursive_mutex> lock(mutex);
 		if(current_file_index<getPlayList()->size()){
@@ -211,10 +220,26 @@ std::string Controler::getAudioFileName(unsigned int i){
 
 }
 
+std::string Controler::getAudioFileName(unsigned int idx,  unsigned int i){
+		std::lock_guard<std::recursive_mutex> lock(mutex);
+		if(idx<playlist_container.size()){
+			if(i<getPlayList(idx)->size())
+				return getPlayList(idx)->getAudioFileName(i);
+		}
+			return "";
+}
+
 void Controler::addFile(std::string path){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
 		if(getPlayList().get()!=nullptr){
 			getPlayList()->addFile(path);
+		}
+}
+
+void Controler::addFile(unsigned int idx_pl, std::string path){
+		std::lock_guard<std::recursive_mutex> lock(mutex);
+		if(idx_pl<playlist_container.size()){
+			getPlayList(idx_pl)->addFile(path);
 		}
 }
 
@@ -275,10 +300,13 @@ std::string Controler::getCurrentFileTime(){
 			return "00:00";
 }
 
-void Controler::removeAudioFile(unsigned int idx){
+void Controler::removeAudioFile(unsigned int idx_pl, unsigned int idx){
 		std::lock_guard<std::recursive_mutex> lock(mutex);
-		getPlayList()->removeAudioFile(idx);
-		setCurrentFileIndex(idx);
+		getPlayList(idx_pl)->removeAudioFile(idx);
+		std::cerr<<"Removine form:"<<idx_pl <<" :: "<<idx<<std::endl;
+		if(idx_pl==current_playlist_index && idx >= current_file_index && current_file_index>0){
+			current_file_index--;
+		}
 
 }
 

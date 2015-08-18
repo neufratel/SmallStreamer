@@ -10,16 +10,18 @@ class PlaylistWidget : public QListWidget
     Q_OBJECT
 	QTimer* timer;
 	std::recursive_mutex mutex;
+	unsigned int old_playlist_index;
 public:
     explicit PlaylistWidget(QWidget *parent = 0);
-	QListWidgetItem* dropHintItem;
+    void loadPlaylist(unsigned int idx);
 signals:
 
 public slots:
-    void doubleClicked();
+	void clicked();
+    	void doubleClicked();
 	void selected();
 	void dropEvent(QDropEvent *event);
-//	void dragMoveEvent(QDragMoveEvent *event);
+	void dragMoveEvent(QDragMoveEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
 };
 

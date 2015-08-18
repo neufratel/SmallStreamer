@@ -71,6 +71,7 @@ void PlayListManager::create_playlist(){
 }
 
 void PlayListManager::remove_file(){
-	Controler::getControl().removeAudioFile(list.currentRow());
+	Controler::getControl().removeAudioFile(selected_playlist, selected_song);
+	playlist.loadPlaylist(selected_playlist);
 }
 

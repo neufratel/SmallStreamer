@@ -7,6 +7,7 @@
 #include <QtGui>
 #include <QDragEnterEvent>
 #include "controler.h"
+#include "playlistmanager.h"
 PlaylistWidget::PlaylistWidget(QWidget *parent) :
     QListWidget(parent)
 {
@@ -29,9 +30,10 @@ PlaylistWidget::PlaylistWidget(QWidget *parent) :
     this->insertItem(i,(Controler::getControl()).getAudioFileName(i).c_str());
 
     connect(this, SIGNAL ( itemDoubleClicked(QListWidgetItem*)), this, SLOT (doubleClicked()));
+    connect(this, SIGNAL ( itemClicked(QListWidgetItem*)), this, SLOT (clicked()));
 	
 	timer= new QTimer(this);
-    connect(timer, SIGNAL (timeout()), this, SLOT (selected()));
+    connect(&(((PlayListManager*)this->parentWidget())->list), SIGNAL( itemClicked(QListWidgetItem*)) , this, SLOT (selected()));
     timer->start(1000);
 	
 		setAcceptDrops(true);
@@ -43,9 +45,6 @@ PlaylistWidget::PlaylistWidget(QWidget *parent) :
      
         setAlternatingRowColors(true);
      
-        dropHintItem = new QListWidgetItem("Drop Files here...",this);
-
-		
 };
 
 
@@ -56,16 +55,42 @@ void PlaylistWidget::doubleClicked(){
  	Controler::getControl().setCurrentFileIndex(this->currentRow());
 }
 
+void PlaylistWidget::clicked(){
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+	((PlayListManager*)this->parentWidget())->selected_song=this->currentRow();
+}
+
+void PlaylistWidget::loadPlaylist(unsigned int idx){
+	std::lock_guard<std::recursive_mutex> lock(mutex);
+
+	this->clear();
+	if(Controler::getControl().getPlayListSize(idx)>0)
+		for(int i=0; i<Controler::getControl().getPlayListSize(idx); i++){
+			this->insertItem(i,(Controler::getControl()).getAudioFileName(idx, i).c_str());
+		}
+	if(this->count()>0){
+		this->setCurrentRow(Controler::getControl().getCurrentFileIndex());
+	}
+}
+
 void PlaylistWidget::selected(){
 	std::lock_guard<std::recursive_mutex> lock(mutex);
-	while(this->count()>0)
+	if(((PlayListManager*)this->parentWidget())->selected_playlist!=old_playlist_index){
+		old_playlist_index=((PlayListManager*)this->parentWidget())->selected_playlist;
+		loadPlaylist(((PlayListManager*)this->parentWidget())->selected_playlist);
+	}
+	if(old_playlist_index==Controler::getControl().getCurrentPlayListIndex() && Controler::getControl().getPlayListSize()>0){
+		this->item(Controler::getControl().getCurrentFileIndex())->setBackgroundColor(Qt::red);
+		
+	}
+	/*while(this->count()>0)
 		this->takeItem(0);
 		for(int i=0; i<Controler::getControl().size(); i++){
 			this->insertItem(i,(Controler::getControl()).getAudioFileName(i).c_str());
 		}
 	if(this->count()>0){
 		this->setCurrentRow(Controler::getControl().getCurrentFileIndex());
-	}
+	}*/
 }
 
 
@@ -81,7 +106,7 @@ void PlaylistWidget::selected(){
             QListWidget::dragEnterEvent(event);
         }
     }
- /*    
+     
     void PlaylistWidget::dragMoveEvent(QDragMoveEvent *event)
     {
 
@@ -91,7 +116,7 @@ void PlaylistWidget::selected(){
         } else {
             QListWidget::dragMoveEvent(event);
         }
-    }*/
+    }
      
     void PlaylistWidget::dropEvent(QDropEvent *event)
     {
@@ -101,11 +126,6 @@ void PlaylistWidget::selected(){
             QList<QUrl> urls = event->mimeData()->urls();
             if (!urls.isEmpty())
             {
-                if (dropHintItem)
-                {
-                    delete dropHintItem;
-                    dropHintItem = 0;
-                }
                 QUrl url;
                 foreach (url,urls)
                 {
@@ -114,7 +134,7 @@ void PlaylistWidget::selected(){
 					try{
 						std::lock_guard<std::recursive_mutex> lock(mutex);
 
-	                	Controler::getControl().addFile(path);
+	                	Controler::getControl().addFile(((PlayListManager*)this->parentWidget())->selected_playlist, path);
 							
 	//						new QListWidgetItem(Controler::getControl().getAudioFileName(Controler::getControl().size()-1).c_str(),this);
                 
@@ -125,6 +145,7 @@ void PlaylistWidget::selected(){
             		}
 
                 }
+		loadPlaylist(old_playlist_index);
             }
             event->acceptProposedAction();
         }

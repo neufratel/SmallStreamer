@@ -21,8 +21,6 @@ class PlayListManager : public QWidget
     QPushButton button_add;
     QPushButton button_remove;
 	QPushButton button_remove_file;
-	ListWidget list;
-	PlaylistWidget playlist;	
 
 	std::shared_ptr<QWidget> popup;
 	QLabel *info;
@@ -32,6 +30,12 @@ class PlayListManager : public QWidget
 	
 
 public:
+	unsigned int selected_song;
+	unsigned int selected_playlist;	
+	ListWidget list;
+	PlaylistWidget playlist;
+
+
     explicit PlayListManager(QWidget *parent = 0);
 
 signals:

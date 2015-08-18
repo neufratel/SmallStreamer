@@ -36,16 +36,19 @@ class Controler{
 		bool isPlaying();
 		void setAutoPlay(bool p);
 		int getPlayListSize();
+		int getPlayListSize(unsigned int idx);
 		void setCurrentFileIndex(unsigned int f);
 		unsigned int getCurrentFileIndex();
 		void setCurrentSampleIndex(unsigned int s);
 		unsigned int getCurrentSampleIndex();
 		unsigned int getAudioSize(unsigned int f);
 		std::string getAudioFileName(unsigned int i);
+		std::string getAudioFileName(unsigned int idx, unsigned int i);
 		std::string getAudioFileTime(unsigned int file_, unsigned int sample_);
 		std::string getCurrentPositionTime();
 		std::string getCurrentFileTime();
 		void addFile(std::string path);
+		void addFile(unsigned int idx_pl, std::string path);
 		unsigned int size();
 		Stream* getCurrentStream();
 		void nextFile();
@@ -56,7 +59,7 @@ class Controler{
 		shared_ptr<PlayList>& getPlayList(unsigned int idx);
 		unsigned int containerSize();
 		void removePlayList(unsigned int idx);
-		void removeAudioFile(unsigned int idx);
+		void removeAudioFile(unsigned int idx_pl, unsigned int idx);
 
 };
 
