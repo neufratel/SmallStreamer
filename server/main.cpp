@@ -10,6 +10,7 @@
 #include <thread>
 #include <chrono>
 #include "server.h"
+#include "pulse.h"
 
 typedef std::chrono::duration<int,std::milli> milisec;
 using boost::asio::ip::tcp;
@@ -21,7 +22,7 @@ int main(int ar, char* arg[] )
   {
 	Logger::getInstance().msg(std::string("Program started"));
 	StreamQueue *que = new StreamQueue;
-	Player player(que);
+	PulsePlayer player(que);
 	player.start();
 	player.start_sec();
 
