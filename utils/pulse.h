@@ -32,6 +32,10 @@ class PulsePlayer: public Runnable{
 	int ret;
 	int error;
 
+	int rate;
+	int byte_rate;
+	int channels;
+
 	StreamQueue *queue;
 	uint8_t buf[BUFSIZE];
         ssize_t r;
@@ -40,25 +44,36 @@ class PulsePlayer: public Runnable{
 	
 
 	void createStream(){
+		drainStream();
 		if (!(s = pa_simple_new(NULL, NULL, PA_STREAM_PLAYBACK, NULL, "playback", &ss, NULL, NULL, &error))) {
 			std::cout<<"Error while creating new stream"<<std::endl;
 			exit(-1);
 	    	}
  
 	}
+	void drainStream(){
+		if(s!=nullptr){
+			if (pa_simple_drain(s, &error) < 0) {
+				std::cout<<"Error while deleting"<<std::endl;
+				exit(-1);
+		    	}
+		   	pa_simple_free(s);
+		}
+	}
 	void play(char *bu, size_t ra){
 		/* ... and play it */
-		for(int i=0; i<BUFSIZE; i++){
+	/*	for(int i=0; i<BUFSIZE; i++){
 			buf[i]=bu[i];
-		}
+		}*/
 		if(s==nullptr){
 			 std::cout<<"Sinc not correct"<<std::endl;
 			exit(-1);
 		}
-		if (pa_simple_write(s, buf, (size_t) ra, &error) < 0) {
+		if (pa_simple_write(s, bu, (size_t) ra, &error) < 0) {
 		   std::cout<<"Error while playing"<<std::endl;
 		}
 	}
+	
 public:
 	PulsePlayer(StreamQueue* q){
 		queue=q;
@@ -71,13 +86,7 @@ public:
 		createStream();
 	}
 	~PulsePlayer(){
-		if (pa_simple_drain(s, &error) < 0) {
-			std::cout<<"Error while deleting"<<std::endl;
-			exit(-1);
-	    	}
-	   
-		if (s)
-			pa_simple_free(s);
+		drainStream();
 	}
 
 	void run(){
@@ -87,19 +96,24 @@ public:
 			std::shared_ptr<Stream> stream=queue->front();
 			queue->pop();
 
-		/*	if(rate!=stream->getRate() || byte_rate!= stream->getByteRate() || channels!=stream->getChannels()){
+			if(rate!=stream->getRate() || byte_rate!= stream->getByteRate() || channels!=stream->getChannels()){
 				rate=stream->getRate();
 				byte_rate= stream->getByteRate();
 				channels=stream->getChannels();
+
+				ss.format = PA_SAMPLE_S16LE;
+				ss.rate = rate;
+				ss.channels = channels;
+				createStream();
 				
-				format.bits = byte_rate;
+				/*format.bits = byte_rate;
 				format.rate = rate;
 				format.channels = channels;
 				format.byte_format = AO_FMT_NATIVE;
 				format.matrix = 0;
-					dev=shared_ptr<ao_device>(ao_open_live(driver,&format, NULL), [](ao_device *d){ ao_close(d);});
+					dev=shared_ptr<ao_device>(ao_open_live(driver,&format, NULL), [](ao_device *d){ ao_close(d);});*/
 			}
-			if(stream->getVolume()!=volume){
+			/*if(stream->getVolume()!=volume){
 				volume=stream->getVolume();	
 			}*/
         		play(stream->getBuffer(),stream->getBufferSize());
